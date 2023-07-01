@@ -1,3 +1,4 @@
+import csv
 import numpy as np
 import os
 import plotly.graph_objects as go
@@ -5,7 +6,9 @@ import pygame
 import sys
 
 id = input('Enter participant ID (ex:01BL):')
-#os.mkdir(f'./{id}')
+
+if not os.path.exists(f'./{id}'):
+    os.mkdir(f'./{id}')
 
 max_vib_lvl = 5
 nb_trials = 5
@@ -71,10 +74,13 @@ def calib_screen(id):
                     print(answers_history)
                     print(vib_lvl_history)
                     if len(vib_lvl_history) >= nb_trials:
-                        print(vib_lvl_history)
-                        print(changing_points)
                         threshold_value = np.mean(changing_points)
-                        print(threshold_value)
+                        with open(f'./{id}/{id}-calibration.csv', 'w', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow(vib_lvl_history)
+                            writer.writerow(answers_history)
+                            writer.writerow(changing_points)
+                            writer.writerow([threshold_value])
                         running=False
                         main_menu(id)
                     screen.fill((0,0,0))
@@ -123,7 +129,7 @@ def calib_screen(id):
         clock.tick(60)
 
 def main_menu(id):
-    pygame.display.set_caption("Home - HapTID")
+    pygame.display.set_caption("Start Menu - HapTID")
     running = True
     while running:
         for event in pygame.event.get():
@@ -136,13 +142,12 @@ def main_menu(id):
                     calib_screen(id)
 
         screen.fill((0,0,0))
-        draw_text(f'Participant {id}', font, white, screen, screen_width/2, screen_height/2-100)
+        draw_text(f'Participant {id}', font, white, screen, screen_width/2, screen_height/10)
         calib_button = draw_button('Start calibration', font, white, screen, screen_width/2, screen_height/2)
-        if threshold_value is not None:
+        if os.path.exists(f'./{id}/{id}-calibration.csv'):
             exercices_button = draw_button('Start exercices', font, white, screen, screen_width/2, screen_height/2+100)
             draw_text('Calibration complete !', font, green, screen, screen_width/2, screen_height/2+200)
 
         pygame.display.update()
-        clock.tick(60)
 
 main_menu(id)
