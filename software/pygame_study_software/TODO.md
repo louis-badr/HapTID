@@ -1,5 +1,6 @@
 # Study software TODO
 
+- [ ] Separate the code in different files
 - [ ] Use FSR as HID device
 
 ## Start Menu
