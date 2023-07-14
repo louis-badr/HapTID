@@ -1,7 +1,6 @@
 # Study software TODO
 
-- [ ] Separate the code in different files
-- [ ] Use FSR as HID device
+- [x] Separate the code in different files
 
 ## Start Menu
 - [x] Check if calibration exists

@@ -2,17 +2,17 @@ import csv
 import menu
 import numpy as np
 import pygame
-import settings
+import constants
 import sys
 import UI
 
 
 class Calibration:
-    def __init__(self, id):
+    def __init__(self):
         
         # initialize variables
-        self.vib_lvl = settings.max_vib_lvl
-        self.step = settings.starting_step
+        self.vib_lvl = constants.max_vib_lvl
+        self.step = constants.starting_step
         self.vib_lvl_history = []
         self.changing_points = []
         self.answers_history = []    
@@ -23,7 +23,6 @@ class Calibration:
         self.screen_height = pygame.display.Info().current_h
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
-        self.id = id
         
     def run(self):
         self.screen.fill('black')
@@ -46,20 +45,20 @@ class Calibration:
                     sys.exit()
                 if event.type==pygame.MOUSEBUTTONDOWN:
                     if menu_button.collidepoint(event.pos):
-                        menu_screen = menu.Menu(self.id)
+                        menu_screen = menu.Menu()
                         menu_screen.run()
                     # if the participant has answered yes or no
                     if yes_button.collidepoint(event.pos) or no_button.collidepoint(event.pos):
                         # ends when the maximum number of trials has been reached
-                        if len(self.vib_lvl_history) >= settings.nb_trials:
+                        if len(self.vib_lvl_history) >= constants.nb_trials:
                             threshold_value = np.mean(self.changing_points)
-                            with open(f'./{self.id}/{self.id}-calibration.csv', 'w', newline='') as file:
+                            with open(f'./{constants.id}/{constants.id}-calibration.csv', 'w', newline='') as file:
                                 writer = csv.writer(file)
                                 writer.writerow(self.vib_lvl_history)
                                 writer.writerow(self.answers_history)
                                 writer.writerow(self.changing_points)
                                 writer.writerow([threshold_value])
-                            menu_screen = menu.Menu(self.id)
+                            menu_screen = menu.Menu()
                             menu_screen.run()
                         self.screen.fill('black')
                         menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
@@ -77,7 +76,7 @@ class Calibration:
                                 self.vib_lvl_history.append(self.vib_lvl)
                                 self.answers_history.append('y')
                                 self.changing_points.append(self.vib_lvl)
-                                self.step *= settings.coeff
+                                self.step *= constants.coeff
                                 self.vib_lvl -= self.step
                             if self.vib_lvl < 0:
                                 self.vib_lvl = 0
@@ -90,9 +89,9 @@ class Calibration:
                                 self.vib_lvl_history.append(self.vib_lvl)
                                 self.answers_history.append('n')
                                 self.changing_points.append(self.vib_lvl)
-                                self.step *= settings.coeff
+                                self.step *= constants.coeff
                                 self.vib_lvl += self.step
-                            if self.vib_lvl > settings.max_vib_lvl:
-                                self.vib_lvl = settings.max_vib_lvl
+                            if self.vib_lvl > constants.max_vib_lvl:
+                                self.vib_lvl = constants.max_vib_lvl
             
             pygame.display.update()
