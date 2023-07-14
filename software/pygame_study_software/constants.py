@@ -1,4 +1,6 @@
+# Participant info
 id = None
+dominant_hand = None
 
 # Display
 framerate = 60

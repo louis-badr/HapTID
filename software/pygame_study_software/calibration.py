@@ -19,15 +19,15 @@ class Calibration:
         # initialize pygame
         pygame.display.set_caption("Calibration - HapTID")
         self.screen = pygame.display.get_surface()
-        self.screen_width = pygame.display.Info().current_w
-        self.screen_height = pygame.display.Info().current_h
+        self.screen_w = pygame.display.Info().current_w
+        self.screen_h = pygame.display.Info().current_h
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
         
     def run(self):
         self.screen.fill('black')
         UI.draw_button('Menu', self.font, 'white', self.screen, 100, 50)
-        UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_width/2, self.screen_height/2)
+        UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
         pygame.display.update()
         pygame.time.wait(2000)
     
@@ -36,9 +36,9 @@ class Calibration:
             self.screen.fill('black')
             # always displayed
             menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
-            UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_width/2, self.screen_height/2)
-            no_button = UI.draw_button('Non', self.font, 'white', self.screen, self.screen_width/2-100, self.screen_height/2+100)
-            yes_button = UI.draw_button('Oui', self.font, 'white', self.screen, self.screen_width/2+100, self.screen_height/2+100)
+            UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
+            no_button = UI.draw_button('Non', self.font, 'white', self.screen, self.screen_w/2-100, self.screen_h/2+100)
+            yes_button = UI.draw_button('Oui', self.font, 'white', self.screen, self.screen_w/2+100, self.screen_h/2+100)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -62,7 +62,7 @@ class Calibration:
                             menu_screen.run()
                         self.screen.fill('black')
                         menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
-                        UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_width/2, self.screen_height/2)
+                        UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
                         pygame.display.update()
                         pygame.time.wait(2000)
                         # vibrate here at vib_lvl
@@ -95,3 +95,4 @@ class Calibration:
                                 self.vib_lvl = constants.max_vib_lvl
             
             pygame.display.update()
+            self.clock.tick(constants.framerate)

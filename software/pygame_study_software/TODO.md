@@ -1,5 +1,4 @@
 # Study software TODO
-
 - [x] Separate the code in different files
 
 ## Start Menu
@@ -10,6 +9,6 @@
 - [x] Write the results in a CSV file
 
 ## Choice Reaction Time
-
+- [ ] Use a FSR to control the size of the circle
 
 ## Isometric index force control

@@ -10,8 +10,8 @@ class FC:
         self.ser.flush()
         pygame.display.set_caption("Force Control - HapTID")
         self.screen = pygame.display.get_surface()
-        self.screen_width = pygame.display.Info().current_w
-        self.screen_height = pygame.display.Info().current_h
+        self.screen_w = pygame.display.Info().current_w
+        self.screen_h = pygame.display.Info().current_h
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
     def run(self):
@@ -31,6 +31,6 @@ class FC:
                 circle_color = 'blue'
             else:
                 circle_color = 'white'
-            pygame.draw.circle(self.screen, circle_color, (self.screen_width/2, self.screen_height/2), circle_size)
+            pygame.draw.circle(self.screen, circle_color, (self.screen_w/2, self.screen_h/2), circle_size)
             pygame.display.update()
             self.clock.tick(constants.framerate)
