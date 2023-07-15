@@ -1,25 +1,8 @@
-import serial
-import time
+import csv
 
-# Replace 'COM3' with the appropriate port name for your system
-serial_port = 'COM3'
-baud_rate = 115200
 
-# Establish a connection to the serial port
-ser = serial.Serial(serial_port, baud_rate, timeout=1)
+with open('./running_order_table.csv') as csv_file:
+    csv_reader = csv.reader(csv_file)
+    rows = list(csv_reader)
 
-try:
-    while True:
-        # Read data from the serial port
-        data = ser.readline().decode('utf-8').strip()
-
-        # If data received, print it
-        if data:
-            print("Received data from serial port: ", data)
-            # Give the device time to send data again
-            #time.sleep(0.5)
-
-# To close the serial port gracefully, use Ctrl+C to break the loop
-except KeyboardInterrupt:
-    print("Closing the serial port.")
-    ser.close()
+    print(rows[0])

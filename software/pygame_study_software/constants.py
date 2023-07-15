@@ -1,6 +1,8 @@
 # Participant info
 id = None
 dominant_hand = None
+finger_threshold = None
+wrist_threshold = None
 
 # Display
 framerate = 60

@@ -1,13 +1,15 @@
 import constants
+import menu
 import pygame
 import serial
 import sys
+import UI
 
 
 class FC:
     def __init__(self):
         self.ser = serial.Serial(constants.com_port, constants.baud_rate, timeout=1)
-        self.ser.flush()
+        self.ser.close()
         pygame.display.set_caption("Force Control - HapTID")
         self.screen = pygame.display.get_surface()
         self.screen_w = pygame.display.Info().current_w
@@ -16,6 +18,7 @@ class FC:
         self.clock = pygame.time.Clock()
     def run(self):
         circle_color = 'white'
+        self.ser.open()
         running = True
         while running:
             for event in pygame.event.get():
@@ -23,7 +26,13 @@ class FC:
                     self.ser.close()
                     pygame.quit()
                     sys.exit()
+                if event.type==pygame.MOUSEBUTTONDOWN:
+                    if menu_button.collidepoint(event.pos):
+                        self.ser.close()
+                        menu_screen = menu.Menu()
+                        menu_screen.run()
             self.screen.fill('black')
+            menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 100, 50)
             circle_size = int(self.ser.readline())
             if circle_size > 52:
                 circle_color = 'red'

@@ -1,0 +1,6 @@
+One line per participant with format : Task n°,CRT,Imperative Signal Type,Warning Signal Type or Task n°,FC,Force Target,Cue Type;;;;;
+1,CRT,None,Visual;2,CRT,None-,Tactile;3,CRT,Visual,Visual;4,CRT,Visual,Tactile;5,CRT,Tactile,Visual;6,CRT,Tactile,Tactile
+1,CRT,None,Visual;2,CRT,None-,Tactile;3,CRT,Visual,Visual;4,CRT,Visual,Tactile;5,CRT,Tactile,Visual;6,CRT,Tactile,Tactile
+1,CRT,None,Visual;2,CRT,None-,Tactile;3,CRT,Visual,Visual;4,CRT,Visual,Tactile;5,CRT,Tactile,Visual;6,CRT,Tactile,Tactile
+1,CRT,None,Visual;2,CRT,None-,Tactile;3,CRT,Visual,Visual;4,CRT,Visual,Tactile;5,CRT,Tactile,Visual;6,CRT,Tactile,Tactile
+1,CRT,None,Visual;2,CRT,None-,Tactile;3,CRT,Visual,Visual;4,CRT,Visual,Tactile;5,CRT,Tactile,Visual;6,CRT,Tactile,Tactile

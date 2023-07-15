@@ -1,5 +1,6 @@
 # Study software TODO
 - [x] Separate the code in different files
+- [ ] Make a running order CSV file
 
 ## Start Menu
 - [x] Check if calibration exists

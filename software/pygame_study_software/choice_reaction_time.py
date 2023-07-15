@@ -1,6 +1,8 @@
 import constants
+import menu
 import pygame
 import sys
+import UI
 
 
 class CRT:
@@ -29,7 +31,12 @@ class CRT:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type==pygame.MOUSEBUTTONDOWN:
+                    if menu_button.collidepoint(event.pos):
+                        menu_screen = menu.Menu()
+                        menu_screen.run()
             self.screen.fill('black')
+            menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 100, 50)
             self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
             for i in range(5):
                 pygame.draw.circle(self.screen, 'white', (self.screen_w*self.circles_pos_x[i], self.screen_h*self.circles_pos_y[i]), 20)
