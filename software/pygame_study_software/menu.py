@@ -30,6 +30,9 @@ class Menu:
                     pygame.quit()
                     sys.exit()
                 if event.type==pygame.MOUSEBUTTONDOWN:
+                    if quit_button.collidepoint(event.pos):
+                        pygame.quit()
+                        sys.exit()
                     if calib_button.collidepoint(event.pos):
                         running = False
                         calibration.Calibration().run()
@@ -48,6 +51,7 @@ class Menu:
             
             self.screen.fill('black')
             UI.draw_text(f'Participant {constants.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)
+            quit_button = UI.draw_button('Quit', self.font, 'red', self.screen, 75, 50)
             calib_button = UI.draw_button('Start calibration', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2-100)
             if self.show_exercices_button:
                 exercices_button = UI.draw_button('Start exercices', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)

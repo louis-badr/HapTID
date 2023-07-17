@@ -32,7 +32,7 @@ class FC:
                         menu_screen = menu.Menu()
                         menu_screen.run()
             self.screen.fill('black')
-            menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 100, 50)
+            menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
             circle_size = int(self.ser.readline())
             if circle_size > 52:
                 circle_color = 'red'

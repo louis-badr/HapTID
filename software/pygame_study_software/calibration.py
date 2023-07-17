@@ -26,7 +26,7 @@ class Calibration:
         
     def run(self):
         self.screen.fill('black')
-        UI.draw_button('Menu', self.font, 'white', self.screen, 100, 50)
+        UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
         UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
         pygame.display.update()
         pygame.time.wait(2000)
@@ -35,7 +35,7 @@ class Calibration:
         while running:
             self.screen.fill('black')
             # always displayed
-            menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 100, 50)
+            menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
             UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
             no_button = UI.draw_button('Non', self.font, 'white', self.screen, self.screen_w/2-100, self.screen_h/2+100)
             yes_button = UI.draw_button('Oui', self.font, 'white', self.screen, self.screen_w/2+100, self.screen_h/2+100)
