@@ -1,4 +1,4 @@
-import csv
+import json
 import menu
 import numpy as np
 import pygame
@@ -15,8 +15,9 @@ class Calibration:
         self.step = constants.starting_step
         self.vib_lvl_history = []
         self.changing_points = []
-        self.answers_history = []    
-        # initialize pygame
+        self.answers_history = []
+
+        # pygame things
         pygame.display.set_caption("Calibration - HapTID")
         self.screen = pygame.display.get_surface()
         self.screen_w = pygame.display.Info().current_w
@@ -25,6 +26,7 @@ class Calibration:
         self.clock = pygame.time.Clock()
         
     def run(self):
+
         self.screen.fill('black')
         UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
         UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
@@ -33,12 +35,13 @@ class Calibration:
     
         running = True
         while running:
+
             self.screen.fill('black')
-            # always displayed
             menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
             UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
             no_button = UI.draw_button('Non', self.font, 'white', self.screen, self.screen_w/2-100, self.screen_h/2+100)
             yes_button = UI.draw_button('Oui', self.font, 'white', self.screen, self.screen_w/2+100, self.screen_h/2+100)
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -52,12 +55,18 @@ class Calibration:
                         # ends when the maximum number of trials has been reached
                         if len(self.vib_lvl_history) >= constants.nb_trials:
                             threshold_value = np.mean(self.changing_points)
-                            with open(f'./{constants.id}/{constants.id}-calibration.csv', 'w', newline='') as file:
-                                writer = csv.writer(file)
-                                writer.writerow(self.vib_lvl_history)
-                                writer.writerow(self.answers_history)
-                                writer.writerow(self.changing_points)
-                                writer.writerow([threshold_value])
+                            # save the calibration data
+                            data = {
+                                "Participant ID": constants.id,
+                                "Wrist threshold value": threshold_value,
+                                "Vibration level history": self.vib_lvl_history,
+                                "Level changing points": self.changing_points,
+                                "Participant answers history": self.answers_history
+                            }
+                            json_object = json.dumps(data, indent=4)
+                            with open(f'./{constants.id}/{constants.id}-calibration.json', "w") as outfile:
+                                outfile.write(json_object)
+                            # go back to the menu
                             menu_screen = menu.Menu()
                             menu_screen.run()
                         self.screen.fill('black')

@@ -1,5 +1,6 @@
 # Participant info
 id = None
+wrist_threshold = None
 dominant_hand = None
 finger_threshold = None
 wrist_threshold = None

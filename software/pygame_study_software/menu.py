@@ -2,6 +2,7 @@ import calibration
 import csv
 import choice_reaction_time
 import force_control
+import json
 import numpy as np
 import os
 import plotly.graph_objects as go
@@ -19,7 +20,9 @@ class Menu:
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
         self.show_exercices_button = False
-        if os.path.exists(f'./{constants.id}/{constants.id}-calibration.csv'):
+        if os.path.exists(f'./{constants.id}/{constants.id}-calibration.json'):
+            data = json.load(open(f'./{constants.id}/{constants.id}-calibration.json'))
+            constants.wrist_threshold = data['Wrist threshold value']
             self.show_exercices_button = True
 
     def run(self):

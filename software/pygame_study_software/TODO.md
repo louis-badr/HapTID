@@ -1,6 +1,7 @@
 # Study software TODO
 - [x] Separate the code in different files
-- [ ] Make a running order CSV file
+- [x] Make a running order CSV file
+- [ ] Switch to JSON / Pandas
 
 ## Start Menu
 - [x] Check if calibration exists
@@ -10,6 +11,7 @@
 - [x] Write the results in a CSV file
 
 ## Choice Reaction Time
-- [ ] Use a FSR to control the size of the circle
+- [ ] Write the results in a CSV file
 
 ## Isometric index force control
+- [ ] Use a FSR to control the size of the circle
