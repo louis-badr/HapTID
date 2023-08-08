@@ -5,11 +5,11 @@ import random
 #* Generation parameters
 
 # number of participants
-nb_participants = 5
+nb_participants = 1
 # number of trials per condition for the Choice Reaction Time (CRT) task
-nb_trials_crt = 5
+nb_trials_crt = 1
 # number of trials per condition for the Force Control (FC) task
-nb_trials_fc = 5
+nb_trials_fc = 1
 
 #* Task parameters
 
@@ -48,14 +48,16 @@ fc_tasks = fc_tasks * nb_trials_fc
 
 task_nb = 1
 
-with open(f'running_order.csv', 'w', newline='') as csvfile:
+with open(f'running_order_table.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
     # write the header
-    writer.writerow(['Participant #', 'Task #', 'Task type', 'param1', 'param2', 'param3', 'param4'])
+    writer.writerow(['Participant #', 'Task #', 'Task type', 'Wrist vibration', 'Param 1', 'Param 2', 'Param 3'])
     # for each participant
     for i in range(nb_participants):
         # randomize the order of the series of tasks
-        series = random.sample(['CRT', 'CRT', 'FC', 'FC'], 4)
+        series_off = random.sample(['CRT', 'FC'], 2)
+        series_on = random.sample(['CRT', 'FC'], 2)
+        series = series_off + series_on
         # for each series
         for j in range(len(series)):
             # randomize the order of the corresponding tasks
