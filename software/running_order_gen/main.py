@@ -42,6 +42,7 @@ crt_tasks = crt_tasks * nb_trials_crt
 # FC task
 # create all possible combinations of FFC task parameters
 fc_tasks = list(itertools.product(*fc_param))
+# repeat the list of combinations to have enough trials
 fc_tasks = fc_tasks * nb_trials_fc
 
 #* Write the CSV file

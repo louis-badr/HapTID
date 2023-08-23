@@ -1,15 +1,17 @@
 #include "AudioTools.h"
-#include "whitenoise1s.h"
-#include "alice.h"
+//#include "whitenoise1s.h"
+//#include "alice.h"
+//#include "la440.h"
+#include "200hz.h"
 
 // Amp shutdown pins (HIGH is ON)
-int shdn1 = 34;
+// int shdn1 = 34; // input only pin - doesn't work
 int shdn2 = 27;
 int shdn3 = 10;
 
 // Motor Pins
-int motor1 = 33;
-int motor2 = 32;
+// int motor1 = 33;
+// int motor2 = 32;
 int motor3 = 25;
 int motor4 = 26;
 int motor5 = 9;
@@ -17,9 +19,10 @@ int motor6 = 12;
 
 //Data Flow: MemoryStream -> EncodedAudioStream  -> PWMAudioOutput
 //Use 8000 for alice_wav and 11025 for knghtsng_wav
-AudioInfo info(8000, 1, 16);
+AudioInfo info(44100, 1, 16);
 //MemoryStream wav(knghtsng_wav, knghtsng_wav_len);
-MemoryStream wav(alice_wav, alice_wav_len);
+//MemoryStream wav(alice_wav, alice_wav_len);
+MemoryStream wav(200hz_raw, 200hz_raw_len);
 //MemoryStream wav(whitenoise1s_raw, whitenoise1s_raw_len);
 PWMAudioOutput pwm;          // PWM output 
 EncodedAudioStream out(&pwm, new WAVDecoder()); // Decoder stream
@@ -29,10 +32,10 @@ void setup(){
   Serial.begin(115200);
 
   // Turn the amps on
-  pinMode(shdn1, OUTPUT);
+  // pinMode(shdn1, OUTPUT);
   pinMode(shdn2, OUTPUT);
   pinMode(shdn3, OUTPUT);
-  digitalWrite(shdn1, HIGH);
+  // digitalWrite(shdn1, HIGH);
   digitalWrite(shdn2, HIGH);
   digitalWrite(shdn3, HIGH);
 
