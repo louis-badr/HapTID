@@ -20,8 +20,8 @@ class Menu:
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
         self.show_exercices_button = False
-        if os.path.exists(f'./{constants.id}/{constants.id}-calibration.json'):
-            data = json.load(open(f'./{constants.id}/{constants.id}-calibration.json'))
+        if os.path.exists(f'./P{constants.id}/P{constants.id}-calibration.json'):
+            data = json.load(open(f'./P{constants.id}/P{constants.id}-calibration.json'))
             constants.wrist_threshold = data['Wrist threshold value']
             self.show_exercices_button = True
 
@@ -53,7 +53,7 @@ class Menu:
                                     force_control.FC().run()
             
             self.screen.fill('black')
-            UI.draw_text(f'Participant {constants.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)
+            UI.draw_text(f'Participant #{constants.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)
             quit_button = UI.draw_button('Quit', self.font, 'red', self.screen, 75, 50)
             calib_button = UI.draw_button('Start calibration', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2-100)
             if self.show_exercices_button:

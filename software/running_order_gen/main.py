@@ -5,7 +5,7 @@ import random
 #* Generation parameters
 
 # number of participants
-nb_participants = 1
+nb_participants = 2
 # number of trials per condition for the Choice Reaction Time (CRT) task
 nb_trials_crt = 1
 # number of trials per condition for the Force Control (FC) task
@@ -56,9 +56,8 @@ with open(f'running_order_table.csv', 'w', newline='') as csvfile:
     # for each participant
     for i in range(nb_participants):
         # randomize the order of the series of tasks
-        series_off = random.sample(['CRT', 'FC'], 2)
-        series_on = random.sample(['CRT', 'FC'], 2)
-        series = series_off + series_on
+        series = random.sample(['CRT', 'FC'], 2)
+        series *= 2
         # for each series
         for j in range(len(series)):
             # randomize the order of the corresponding tasks
