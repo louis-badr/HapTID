@@ -38,14 +38,8 @@ class CRT:
         ratio = hand_img_w/hand_img_h
         self.hand_img = pygame.transform.smoothscale(hand_img, (int(ratio*self.screen_h*0.8), int(self.screen_h*0.8)))
         
-        # load the exercices
-        with open('./running_order_table.csv') as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=';')
-            rows = list(csv_reader)
-            self.exercices = rows[int(constants.id[:2])]
-        
         # load the results or create the file if it doesn't exist
-        self.results_filepath = f'./{constants.id}/{constants.id}-crt-results.csv'
+        self.results_filepath = f'./P{constants.id}/P{constants.id}-crt-results.csv'
         if not os.path.exists(self.results_filepath):
             with open(self.results_filepath, 'w', newline='') as csv_file:
                 pass
@@ -60,21 +54,31 @@ class CRT:
 
     def run(self):
         while True:
-            # on parcourt la liste jusqu'à trouver un exercice CRT qui n'a pas été fait
-            for exercice in self.exercices:
-                # on récupère les infos de l'exercice
-                exercice_info = exercice.split(sep=',')
-                # si ce n'est pas un CRT on retourne au menu
-                if exercice_info[1] != 'CRT':
-                    menu_screen = menu.Menu()
-                    menu_screen.run()  
-                # sinon on vérifie que l'exercice n'a pas déjà été fait     
-                elif exercice not in self.done_exercices:
-                    next_exercice = exercice
-                    ws_type = exercice_info[2]
-                    is_type = exercice_info[3]
-                    finger = random.randint(0, 4)                    
-                    break
+
+            # on récupère les infos de la prochaine tâche
+            next_task = constants.tasks[0]
+            # si la prochaine tâche n'est pas un CRT on retourne au menu
+            if next_task[1] != 'CRT':
+                menu_screen = menu.Menu()
+                menu_screen.run()
+            # on récupère les infos de l'exercice
+            ws_type = next_task[4]
+            is_type = next_task[5]
+            match next_task[2]:
+                case 'thumb':
+                    finger = 0
+                case 'index':
+                    finger = 1
+                case 'middle':
+                    finger = 2
+                case 'ring':
+                    finger = 3
+                case 'little':
+                    finger = 4
+            # si le participant est gaucher
+            if constants.dominant_hand == 'L':
+                finger = abs(4 - finger)
+
             # on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
             running = True
             while running:
@@ -94,30 +98,32 @@ class CRT:
                         if event.key == pygame.K_SPACE:
                             running = False
                 self.clock.tick(constants.framerate)
-            # on affiche la main puis on attend entre 2 et 5 secondes
+            # on affiche la main puis on attend un temps aléatoire
             self.screen.fill('black')
             self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
             pygame.display.update()
             pygame.time.wait(random.randint(3000, 8000))
             # on lance le warning signal
             if ws_type != 'None':
-                if ws_type == 'Visual':
+                if ws_type == 'visual':
                     print('WS Type : Visual')
                     for i in range(5):
                         pygame.draw.circle(self.screen, 'white', (self.screen_w*self.circles_pos_x[i], self.screen_h*self.circles_pos_y[i]), 20)
                     pygame.display.update()
-                elif ws_type == 'Tactile':
+                elif ws_type == 'tactile':
                     print('WS Type : Tactile')
+                    # vibrate here
                 pygame.time.wait(500)
                 self.screen.fill('black')
                 self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
                 pygame.display.update()
             # on lance l'imperative signal
-            if is_type == 'Visual':
+            if is_type == 'visual':
                 pygame.draw.circle(self.screen, 'green', (self.screen_w*self.circles_pos_x[finger], self.screen_h*self.circles_pos_y[finger]), 20)
                 pygame.display.update()
-            elif is_type == 'Tactile':
+            elif is_type == 'tactile':
                 print('IS Type : Tactile')
+                # vibrate here
             start = time.time()
             running = True
             while running:

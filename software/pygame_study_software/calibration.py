@@ -64,7 +64,7 @@ class Calibration:
                                 "Participant answers history": self.answers_history
                             }
                             json_object = json.dumps(data, indent=4)
-                            with open(f'./{constants.id}/{constants.id}-calibration.json', "w") as outfile:
+                            with open(f'./P{constants.id}/P{constants.id}-calibration.json', "w") as outfile:
                                 outfile.write(json_object)
                             # go back to the menu
                             menu_screen = menu.Menu()

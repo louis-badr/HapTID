@@ -1,7 +1,7 @@
 # Study software TODO
 - [x] Separate the code in different files
 - [x] Make a running order CSV file
-- [ ] Switch to JSON / Pandas
+- [x] Switch to JSON for calibration
 
 ## Start Menu
 - [x] Check if calibration exists
@@ -11,7 +11,7 @@
 - [x] Write the results in a CSV file
 
 ## Choice Reaction Time
-- [ ] Write the results in a CSV file
+- [ ] Make it work with the Arduino Mega keyboard
 
 ## Isometric index force control
-- [ ] Use a FSR to control the size of the circle
+- [ ] Make it work with the Arduino Mega keyboard

@@ -42,15 +42,11 @@ class Menu:
                     if self.show_exercices_button:
                         if exercices_button.collidepoint(event.pos):
                             running = False
-                            #force_control.FC().run()
-                            with open('./running_order_table.csv') as csv_file:
-                                csv_reader = csv.reader(csv_file, delimiter=';')
-                                rows = list(csv_reader)
-                                exercice = rows[int(constants.id[:2])][0].split(',')[1]
-                                if exercice == 'CRT':
-                                    choice_reaction_time.CRT().run()
-                                elif exercice == 'FC':
-                                    force_control.FC().run()
+                            # check what the next task is
+                            if constants.tasks[0][1] == 'CRT':
+                                choice_reaction_time.ChoiceReactionTime().run()
+                            elif constants.tasks[0][1] == 'FC':
+                                force_control.ForceControl().run()
             
             self.screen.fill('black')
             UI.draw_text(f'Participant #{constants.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)

@@ -1,5 +1,7 @@
 # Participant info
 id = None
+tasks = []
+completed_tasks = []
 wrist_threshold = None
 dominant_hand = None
 finger_threshold = None
