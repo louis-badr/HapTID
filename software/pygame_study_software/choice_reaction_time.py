@@ -4,6 +4,7 @@ import menu
 import os
 import pygame
 import random
+import serial
 import sys
 import time
 import UI
@@ -11,6 +12,12 @@ import UI
 
 class CRT:
     def __init__(self):
+
+        # arduino things
+        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=.1)
+        # dirty fix to make sure the arduino is ready to receive data
+        self.ser_mega.close()
+        self.ser_mega.open()
 
         # pygame things
         pygame.display.set_caption("Choice Reaction Time - HapTID")
@@ -64,6 +71,8 @@ class CRT:
             # on récupère les infos de l'exercice
             ws_type = next_task[4]
             is_type = next_task[5]
+            # on fait correspondre le doigt à la position du cercle
+            # si le participant est gaucher c'est la main droite
             match next_task[2]:
                 case 'thumb':
                     finger = 0
@@ -75,8 +84,10 @@ class CRT:
                     finger = 3
                 case 'little':
                     finger = 4
-            # si le participant est gaucher
-            if constants.dominant_hand == 'L':
+                case other:
+                    finger = 0
+            # si le participant est droitier on inverse les doigts
+            if constants.dominant_hand == 'R':
                 finger = abs(4 - finger)
 
             # on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
@@ -88,6 +99,7 @@ class CRT:
                 pygame.display.update()
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        self.ser_mega.close()
                         pygame.quit()
                         sys.exit()
                     if event.type==pygame.MOUSEBUTTONDOWN:
@@ -124,22 +136,26 @@ class CRT:
             elif is_type == 'tactile':
                 print('IS Type : Tactile')
                 # vibrate here
-            start = time.time()
+
+
+            # on demande au mega de lancer la fonction de record
+            self.ser_mega.write(b'C')
+            # on attend d'avoir un retour du mega
             running = True
             while running:
+                data = self.ser_mega.readline().decode().strip()
+                if data:
+                    print(data)
+                    running = False
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        self.ser_mega.close()
                         pygame.quit()
                         sys.exit()
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_a:
-                            end = time.time()
-                            print(end-start)
-                            running = False
                 self.clock.tick(constants.framerate)
             # on enregistre les résultats dans le fichier csv
-            with open(self.results_filepath, 'a', newline='') as csv_file:
-                csv_writer = csv.writer(csv_file, delimiter=';')
-                csv_writer.writerow([next_exercice, finger, end-start])
+
             # on ajoute l'exercice à la liste des exercices faits
-            self.done_exercices.append(next_exercice)
+            constants.completed_tasks.append(constants.tasks.pop(0))
+            print(constants.completed_tasks)
+            print(constants.tasks)

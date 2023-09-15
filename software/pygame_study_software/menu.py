@@ -44,9 +44,9 @@ class Menu:
                             running = False
                             # check what the next task is
                             if constants.tasks[0][1] == 'CRT':
-                                choice_reaction_time.ChoiceReactionTime().run()
+                                choice_reaction_time.CRT().run()
                             elif constants.tasks[0][1] == 'FC':
-                                force_control.ForceControl().run()
+                                force_control.FC().run()
             
             self.screen.fill('black')
             UI.draw_text(f'Participant #{constants.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)

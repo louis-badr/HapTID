@@ -10,17 +10,23 @@ float fsrVoltage; // analog reading converted to voltage
 unsigned long fsrResistance; // voltage converted to resistance
 float force;
 
+char receivedChar;
+
 void setup(void) {
   Serial.begin(115200);   // We'll send debugging information via the Serial monitor
-  randomSeed(analogRead(5));
-  delay(5000);
-  readInputCRT();
-  delay(5000);
-  startStreamFSR(10);
 }
  
 void loop(void) {
-
+  // listen
+  if (Serial.available() > 0) {
+    receivedChar = Serial.read();
+    if (receivedChar == 'C'){
+      readInputCRT();
+    }
+    else {
+      Serial.println(receivedChar);
+    }
+  }
 }
 
 // Choice Reaction Time (CRT)
@@ -28,8 +34,6 @@ void loop(void) {
 void readInputCRT() {
   bool keepReading = true;
   randomFinger = random(5);
-  Serial.print("Press ");
-  Serial.println(randomFinger);
   // on démarre le timer
   startTime = micros();
   // on lit en boucle chaque FSR
@@ -46,11 +50,11 @@ void readInputCRT() {
     }
   }
   // on print le résultat
-  Serial.print("Finger pressed : ");
+  Serial.print("Results [finger, RT(ms)]: [");
   Serial.print(pressedFinger);
-  Serial.print(" Reaction time : ");
+  Serial.print(",");
   Serial.print(elapsedTime/1000);
-  Serial.println(" ms");
+  Serial.println("]");
 }
 
 // Force Control

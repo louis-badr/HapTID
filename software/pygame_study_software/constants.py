@@ -11,7 +11,8 @@ wrist_threshold = None
 framerate = 60
 
 # Arduino
-com_port = 'COM3'
+com_port_haptid = None
+com_port_keyboard = None
 baud_rate = 115200
 
 # Calibration
