@@ -49,15 +49,15 @@ class CRT:
         self.results_filepath = f'./P{constants.id}/P{constants.id}-crt-results.csv'
         if not os.path.exists(self.results_filepath):
             with open(self.results_filepath, 'w', newline='') as csv_file:
-                pass
+                # write the header
+                csv_writer = csv.writer(csv_file, delimiter=';')
+                csv_writer.writerow(['Task #', 'Task type', 'Wrist vibration', 'Finger to press', 'WS type', 'IS type','Finger pressed', 'Reaction time(ms)'])
         with open(self.results_filepath) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=';')
             print(len(list(csv_reader)))
-            if len(list(csv_reader)) != 0:
-                self.done_exercices = list(csv_reader)[0]
-            else:
-                self.done_exercices = []
-            print(self.done_exercices)
+            if len(list(csv_reader)) > 1:
+                constants.completed_tasks = list(csv_reader)[0]
+            print(constants.completed_tasks)
 
     def run(self):
         while True:
@@ -72,8 +72,7 @@ class CRT:
             ws_type = next_task[4]
             is_type = next_task[5]
             # on fait correspondre le doigt à la position du cercle
-            # si le participant est gaucher c'est la main droite
-            match next_task[2]:
+            match next_task[3]:
                 case 'thumb':
                     finger = 0
                 case 'index':
@@ -86,9 +85,6 @@ class CRT:
                     finger = 4
                 case other:
                     finger = 0
-            # si le participant est droitier on inverse les doigts
-            if constants.dominant_hand == 'R':
-                finger = abs(4 - finger)
 
             # on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
             running = True
@@ -146,6 +142,29 @@ class CRT:
                 data = self.ser_mega.readline().decode().strip()
                 if data:
                     print(data)
+                    # parse data - fsr pressed ; reaction time
+                    data = data.split(';')
+                    # on fait correspondre le numéro du fsr au doigt
+                    # si le participant est gaucher on inverse
+                    if constants.dominant_hand == 'L':
+                        data[0] = 4 - data[0]
+                    match data[0]:
+                        case '0':
+                            finger_pressed = 'little'
+                        case '1':
+                            finger_pressed = 'ring'
+                        case '2':
+                            finger_pressed = 'middle'
+                        case '3':
+                            finger_pressed = 'index'
+                        case '4':
+                            finger_pressed = 'thumb'
+                        case other:
+                            finger_pressed = 'error'
+                    # save to csv here
+                    with open(self.results_filepath, 'a', newline='') as csv_file:
+                        csv_writer = csv.writer(csv_file, delimiter=';')
+                        csv_writer.writerow(constants.tasks[0]+[finger_pressed,data[1]])
                     running = False
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -153,9 +172,6 @@ class CRT:
                         pygame.quit()
                         sys.exit()
                 self.clock.tick(constants.framerate)
-            # on enregistre les résultats dans le fichier csv
-
             # on ajoute l'exercice à la liste des exercices faits
             constants.completed_tasks.append(constants.tasks.pop(0))
             print(constants.completed_tasks)
-            print(constants.tasks)

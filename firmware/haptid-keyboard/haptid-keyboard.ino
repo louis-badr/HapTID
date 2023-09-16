@@ -50,11 +50,9 @@ void readInputCRT() {
     }
   }
   // on print le résultat
-  Serial.print("Results [finger, RT(ms)]: [");
   Serial.print(pressedFinger);
-  Serial.print(",");
-  Serial.print(elapsedTime/1000);
-  Serial.println("]");
+  Serial.print(";");
+  Serial.println(elapsedTime/1000);
 }
 
 // Force Control
