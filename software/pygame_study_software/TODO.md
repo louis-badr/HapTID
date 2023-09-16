@@ -12,7 +12,7 @@
 
 ## Choice Reaction Time
 - [x] Make it work with the Arduino Mega keyboard
-- [ ] Save the results in a CSV file
+- [x] Save the results in a CSV file
 
 ## Isometric index force control
 - [ ] Make it work with the Arduino Mega keyboard

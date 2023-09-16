@@ -1,0 +1,15 @@
+Task #;Task type;Wrist vibration;Finger to press;WS type;IS type;Finger pressed;Reaction time(ms)
+1;CRT;off;ring;visual;tactile;ring;4663
+2;CRT;off;middle;tactile;tactile;little;4750
+3;CRT;off;thumb;none;visual;ring;671
+1;CRT;off;ring;visual;tactile;little;276
+2;CRT;off;middle;tactile;tactile;ring;677
+3;CRT;off;thumb;none;visual;middle;4997
+4;CRT;off;little;none;visual;index;639
+5;CRT;off;thumb;visual;visual;thumb;521
+1;CRT;off;ring;visual;tactile;thumb;1135
+2;CRT;off;middle;tactile;tactile;index;902
+3;CRT;off;thumb;none;visual;middle;708
+4;CRT;off;little;none;visual;ring;803
+5;CRT;off;thumb;visual;visual;little;702
+6;CRT;off;little;visual;tactile;thumb;2643
