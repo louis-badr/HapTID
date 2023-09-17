@@ -1,7 +1,5 @@
 # Participant info
 id = None
-tasks = []
-completed_tasks = []
 wrist_threshold = None
 dominant_hand = None
 finger_threshold = None
@@ -20,3 +18,11 @@ max_vib_lvl = 5
 nb_trials = 5
 starting_step = 1.5
 coeff = 0.7
+
+# Tasks tracking
+tasks = []
+completed_crt_tasks = []
+completed_fc_tasks = []
+
+# Force control
+target_circle_size = 50

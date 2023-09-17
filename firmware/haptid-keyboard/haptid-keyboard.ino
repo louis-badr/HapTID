@@ -20,8 +20,11 @@ void loop(void) {
   // listen
   if (Serial.available() > 0) {
     receivedChar = Serial.read();
-    if (receivedChar == 'C'){
+    if (receivedChar == 'C') {
       readInputCRT();
+    }
+    else if (receivedChar == 'F') {
+      startStreamFSR(30);
     }
     else {
       Serial.println(receivedChar);
@@ -63,21 +66,21 @@ void startStreamFSR(float sec) {
   // for the next X seconds
   while(micros() - startTime <= sec * 1000000) {
     // read the analog pin
-    fsrReading = analogRead(1);
+    fsrReading = analogRead(0);
     // analog voltage reading ranges from 0 to 1023 which is mapped from 0 to 5V (= 5000mV)
     fsrVoltage = map(fsrReading, 0, 1023, 0, 5000);
     if (fsrVoltage != 0) {
       fsrResistance = 5000 - fsrVoltage;
       fsrResistance *= 10000; // 10k resistor
       fsrResistance /= fsrVoltage;
-      force = 6570.2*pow(fsrResistance,-0.738);
+      force = 657*pow(fsrResistance,-0.738);
     }
     else {
       force = 0;
     }
-    Serial.print("Force : ");
     Serial.print(force);
-    Serial.print(" Elapsed time : ");
+    Serial.print(";");
     Serial.println(micros() - startTime);
+    delay(10);
   }
 }

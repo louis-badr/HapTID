@@ -12,7 +12,6 @@ import UI
 
 class CRT:
     def __init__(self):
-
         # arduino things
         self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=.1)
         # dirty fix to make sure the arduino is ready to receive data
@@ -56,8 +55,8 @@ class CRT:
             csv_reader = csv.reader(csv_file, delimiter=';')
             print(len(list(csv_reader)))
             if len(list(csv_reader)) > 1:
-                constants.completed_tasks = list(csv_reader)[0]
-            print(constants.completed_tasks)
+                constants.completed_crt_tasks = list(csv_reader)[0]
+            print(constants.completed_crt_tasks)
 
     def run(self):
         while True:
@@ -66,9 +65,11 @@ class CRT:
             next_task = constants.tasks[0]
             # si la prochaine tâche n'est pas un CRT on retourne au menu
             if next_task[1] != 'CRT':
+                self.ser_mega.close()
                 menu_screen = menu.Menu()
                 menu_screen.run()
             # on récupère les infos de l'exercice
+            wrist_vibration = bool(next_task[2])
             ws_type = next_task[4]
             is_type = next_task[5]
             # on fait correspondre le doigt à la position du cercle
@@ -100,12 +101,16 @@ class CRT:
                         sys.exit()
                     if event.type==pygame.MOUSEBUTTONDOWN:
                         if menu_button.collidepoint(event.pos):
+                            self.ser_mega.close()
                             menu_screen = menu.Menu()
                             menu_screen.run()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
                             running = False
                 self.clock.tick(constants.framerate)
+            # on lance la vibration du poignet si nécessaire
+            if wrist_vibration:
+                print('Start wrist vibration')
             # on affiche la main puis on attend un temps aléatoire
             self.screen.fill('black')
             self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
@@ -172,6 +177,9 @@ class CRT:
                         pygame.quit()
                         sys.exit()
                 self.clock.tick(constants.framerate)
+            # on arrête la vibration du poignet si nécessaire
+            if wrist_vibration:
+                print('Stop wrist vibration')
             # on ajoute l'exercice à la liste des exercices faits
-            constants.completed_tasks.append(constants.tasks.pop(0))
-            print(constants.completed_tasks)
+            constants.completed_crt_tasks.append(constants.tasks.pop(0))
+            print(constants.completed_crt_tasks)
