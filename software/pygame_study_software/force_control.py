@@ -11,7 +11,7 @@ import UI
 class FC:
     def __init__(self):
         # arduino things
-        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=.1)
+        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200)
         # dirty fix to make sure the arduino is ready to receive data
         self.ser_mega.close()
         self.ser_mega.open()
@@ -101,16 +101,15 @@ class FC:
                 self.screen.fill('black')
                 menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
                 # on lit le port série
-                data = self.ser_mega.readline().decode().strip()
-                if data:
+                if self.ser_mega.in_waiting > 0:
+                    data = self.ser_mega.readline().decode().strip()
                     print(data)
-                    data = data.split(';')[0]
                     # on adapte la taille du cercle en fonction de la force
                     circle_size = float(data) * circle_size_coeff
                     # le cercle devient rouge si la force est trop élevée, bleu si elle est trop faible et blanc sinon
-                    if circle_size > 51:
+                    if circle_size > constants.target_circle_size + 2:
                         circle_color = 'red'
-                    elif circle_size < 49:
+                    elif circle_size < constants.target_circle_size - 2:
                         circle_color = 'blue'
                     else:
                         circle_color = 'white'

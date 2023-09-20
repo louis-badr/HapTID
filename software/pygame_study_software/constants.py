@@ -25,4 +25,4 @@ completed_crt_tasks = []
 completed_fc_tasks = []
 
 # Force control
-target_circle_size = 50
+target_circle_size = 80

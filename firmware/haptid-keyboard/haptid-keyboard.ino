@@ -17,17 +17,13 @@ void setup(void) {
 }
  
 void loop(void) {
-  // listen
   if (Serial.available() > 0) {
     receivedChar = Serial.read();
     if (receivedChar == 'C') {
       readInputCRT();
     }
     else if (receivedChar == 'F') {
-      startStreamFSR(30);
-    }
-    else {
-      Serial.println(receivedChar);
+      startStreamFSR(10);
     }
   }
 }
@@ -73,14 +69,12 @@ void startStreamFSR(float sec) {
       fsrResistance = 5000 - fsrVoltage;
       fsrResistance *= 10000; // 10k resistor
       fsrResistance /= fsrVoltage;
-      force = 657*pow(fsrResistance,-0.738);
+      force = 6570*pow(fsrResistance,-0.738);
     }
     else {
       force = 0;
     }
-    Serial.print(force);
-    Serial.print(";");
-    Serial.println(micros() - startTime);
-    delay(10);
+    Serial.println(force);
+    //delay(10);
   }
 }
