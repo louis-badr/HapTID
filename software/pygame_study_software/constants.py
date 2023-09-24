@@ -6,7 +6,7 @@ finger_threshold = None
 wrist_threshold = None
 
 # Display
-framerate = 60
+framerate = 144
 
 # Arduino
 com_port_haptid = None

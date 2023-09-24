@@ -1,3 +1,5 @@
+from readline import ReadLine
+
 import constants
 import csv
 import menu
@@ -11,10 +13,11 @@ import UI
 class FC:
     def __init__(self):
         # arduino things
-        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200)
+        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=None)
         # dirty fix to make sure the arduino is ready to receive data
         self.ser_mega.close()
         self.ser_mega.open()
+        self.reader_mega = ReadLine(self.ser_mega)
 
         # pygame things
         pygame.display.set_caption("Force Control - HapTID")
@@ -100,9 +103,11 @@ class FC:
                             menu_screen.run()
                 self.screen.fill('black')
                 menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
+                #UI.draw_text(f'FPS: {int(self.clock.get_fps())}', self.font, 'white', self.screen, self.screen_w - 75, 50)
                 # on lit le port série
-                if self.ser_mega.in_waiting > 0:
-                    data = self.ser_mega.readline().decode().strip()
+                if self.ser_mega.in_waiting:
+                    self.ser_mega.flush()
+                    data = self.reader_mega.readline().decode().strip()
                     print(data)
                     # on adapte la taille du cercle en fonction de la force
                     circle_size = float(data) * circle_size_coeff

@@ -15,4 +15,6 @@
 - [x] Save the results in a CSV file
 
 ## Isometric index force control
-- [ ] Make it work with the Arduino Mega keyboard
+- [ ] Make it work with the Arduino Mega keyboard in real time
+- [ ] Use the indicator type (visual or tactile)
+- [ ] Save the results in a CSV file

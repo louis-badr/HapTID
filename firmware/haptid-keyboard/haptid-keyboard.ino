@@ -75,6 +75,6 @@ void startStreamFSR(float sec) {
       force = 0;
     }
     Serial.println(force);
-    //delay(10);
+    delay(5);
   }
 }
