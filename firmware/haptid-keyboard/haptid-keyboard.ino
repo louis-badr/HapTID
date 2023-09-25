@@ -1,3 +1,6 @@
+int framerate = 144;
+float delayFsr = 1000/framerate;
+
 int randomFinger;
 int pressedFinger;
 
@@ -6,9 +9,9 @@ unsigned long elapsedTime;
 
 int pressThreshold = 300; // FSR reading value over which it is counted as a press
 int fsrReading;      // analog reading from the FSR resistor divider
-float fsrVoltage; // analog reading converted to voltage
+unsigned long fsrVoltage; // analog reading converted to voltage
 unsigned long fsrResistance; // voltage converted to resistance
-float force;
+double force;
 
 char receivedChar;
 
@@ -75,6 +78,6 @@ void startStreamFSR(float sec) {
       force = 0;
     }
     Serial.println(force);
-    delay(5);
+    delay(delayFsr);
   }
 }
