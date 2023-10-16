@@ -1,69 +1,115 @@
 #include "AudioTools.h"
-//#include "whitenoise1s.h"
+#include "whitenoise1s.h"
 //#include "alice.h"
-//#include "la440.h"
-#include "200hz.h"
 
-// Amp shutdown pins (HIGH is ON)
-// int shdn1 = 34; // input only pin - doesn't work
-int shdn2 = 27;
-int shdn3 = 10;
+unsigned long starttime;
 
-// Motor Pins
-// int motor1 = 33;
-// int motor2 = 32;
+// keep shdn on HIGH to run the amp - each amp controls two motors
+int shdn1 = 22;
+int motor1 = 32;
+int motor2 = 33;
+
+int shdn2 = 19;
 int motor3 = 25;
 int motor4 = 26;
-int motor5 = 9;
+
+int shdn3 = 4;
+int motor5 = 27;
 int motor6 = 12;
 
 //Data Flow: MemoryStream -> EncodedAudioStream  -> PWMAudioOutput
-//Use 8000 for alice_wav and 11025 for knghtsng_wav
 AudioInfo info(44100, 1, 16);
-//MemoryStream wav(knghtsng_wav, knghtsng_wav_len);
+SineWaveGenerator<int16_t> sineWave(32000); // subclass of SoundGenerator with max amplitude of 32000
+GeneratedSoundStream<int16_t> sound(sineWave);  // Stream generated from sine wave
 //MemoryStream wav(alice_wav, alice_wav_len);
-MemoryStream wav(200hz_raw, 200hz_raw_len);
-//MemoryStream wav(whitenoise1s_raw, whitenoise1s_raw_len);
+MemoryStream wav(whitenoise1s_raw, whitenoise1s_raw_len);
 PWMAudioOutput pwm;          // PWM output 
 EncodedAudioStream out(&pwm, new WAVDecoder()); // Decoder stream
-StreamCopy copier(out, wav);    // copy in to out
 
 void setup(){
   Serial.begin(115200);
 
-  // Turn the amps on
-  // pinMode(shdn1, OUTPUT);
+  pinMode(shdn1, OUTPUT);
+  pinMode(motor1, OUTPUT);
+  pinMode(motor2, OUTPUT);
+
   pinMode(shdn2, OUTPUT);
+  pinMode(motor3, OUTPUT);
+  pinMode(motor4, OUTPUT);
+
   pinMode(shdn3, OUTPUT);
-  // digitalWrite(shdn1, HIGH);
+  pinMode(motor5, OUTPUT);
+  pinMode(motor6, OUTPUT);
+
+  digitalWrite(shdn1, HIGH);
+  digitalWrite(motor1, LOW);
+  digitalWrite(motor2, LOW);
+
   digitalWrite(shdn2, HIGH);
+  digitalWrite(motor3, LOW);
+  digitalWrite(motor4, LOW);
+
   digitalWrite(shdn3, HIGH);
+  digitalWrite(motor5, LOW);
+  digitalWrite(motor6, LOW);
 
-  AudioLogger::instance().begin(Serial, AudioLogger::Info);  
-
-  wav.begin();
-  out.begin();
-
-  auto config = pwm.defaultConfig();
-  config.copyFrom(info);
-  config.start_pin = motor3;
-  pwm.begin(config);
+  AudioLogger::instance().begin(Serial, AudioLogger::Info);
+  wav.setLoop(true);
 }
 
 void loop(){
-  if (wav) {
-    copier.copy();
-  } else {
-    // after we are done we just print some info form the wav file
-    auto info = out.audioInfo();
-    LOGI("The audio rate from the wav file is %d", info.sample_rate);
-    LOGI("The channels from the wav file is %d", info.channels);
+  // // little demo
+  // delay(5000);
+  // // one click
+  // playClick(motor6, 1);
+  // delay(2000);
+  // // triple click
+  // playClick(motor6, 1);
+  // delay(100);
+  // playClick(motor6, 1);
+  // delay(100);
+  // playClick(motor6, 1);
+  // delay(2000);
+  playTone(motor6, 1, 3000, 440);
+  // delay(2000);
+  // playNoise(motor6, 1, 3000);
+}
 
-    // restart from the beginning
-    Serial.println("Restarting...");
-    delay(5000);
-    out.begin();   // indicate that we process the WAV header
-    wav.begin();       // reset actual position to 0
-    pwm.begin();       // reset counters 
+// plays noise on the selected motor - volume 0-1 - duration in ms 0-30000
+void playNoise(int motor, float volume, float duration){
+  StreamCopy copier(out, wav);    // copy in to out
+  out.begin();   // indicate that we process the WAV header
+  wav.begin();       // reset actual position to 0
+  auto config = pwm.defaultConfig();
+  config.copyFrom(info);
+  config.start_pin = motor;
+  pwm.begin(config); 
+  starttime = millis();
+  while (millis() - starttime <= duration) {
+    copier.copy();
   }
+  digitalWrite(motor, LOW);
+}
+
+// plays a click on the selected motor 1-6 with a volume value 0-1
+void playClick(int motor, float volume){
+  volume *= 255;
+  digitalWrite(motor, volume);
+  delay(8);
+  digitalWrite(motor, LOW);
+}
+
+// plays a tone on the selected motor - frequency (Hz) 0-20k - volume 0-1 - duration in ms 0-30000
+void playTone(int motor, float volume, float duration, int frequency){
+  StreamCopy copier(pwm, sound);
+  sineWave.begin(info, frequency);
+  auto config = pwm.defaultConfig();
+  config.copyFrom(info);
+  config.start_pin = motor;
+  pwm.begin(config);
+  starttime = millis();
+  while (millis() - starttime <= duration) {
+    copier.copy();
+  }
+  digitalWrite(motor, LOW);
 }
