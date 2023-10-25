@@ -1,5 +1,5 @@
 #include "AudioTools.h"
-#include "whitenoise1s.h"
+#include "audiofile.h"
 //#include "alice.h"
 
 unsigned long starttime;
@@ -18,11 +18,13 @@ int motor5 = 27;
 int motor6 = 12;
 
 //Data Flow: MemoryStream -> EncodedAudioStream  -> PWMAudioOutput
-AudioInfo info(44100, 1, 16);
+
+AudioInfo info(8000, 1, 8);
+
 SineWaveGenerator<int16_t> sineWave(32000); // subclass of SoundGenerator with max amplitude of 32000
 GeneratedSoundStream<int16_t> sound(sineWave);  // Stream generated from sine wave
 //MemoryStream wav(alice_wav, alice_wav_len);
-MemoryStream wav(whitenoise1s_raw, whitenoise1s_raw_len);
+MemoryStream wav(audiofile_raw, audiofile_raw_len);
 PWMAudioOutput pwm;          // PWM output 
 EncodedAudioStream out(&pwm, new WAVDecoder()); // Decoder stream
 
@@ -55,33 +57,22 @@ void setup(){
 
   AudioLogger::instance().begin(Serial, AudioLogger::Info);
   wav.setLoop(true);
+  //playTone(motor6, 1, 5000, 440);
+  playAudioFile(motor6, 1, 5000);
 }
 
 void loop(){
-  // // little demo
-  // delay(5000);
-  // // one click
-  // playClick(motor6, 1);
-  // delay(2000);
-  // // triple click
-  // playClick(motor6, 1);
-  // delay(100);
-  // playClick(motor6, 1);
-  // delay(100);
-  // playClick(motor6, 1);
-  // delay(2000);
-  playTone(motor6, 1, 3000, 440);
-  // delay(2000);
-  // playNoise(motor6, 1, 3000);
+
 }
 
-// plays noise on the selected motor - volume 0-1 - duration in ms 0-30000
-void playNoise(int motor, float volume, float duration){
+// plays audio file on the selected motor - volume 0-1 - duration in ms 0-30000
+void playAudioFile(int motor, float volume, float duration){
   StreamCopy copier(out, wav);    // copy in to out
   out.begin();   // indicate that we process the WAV header
   wav.begin();       // reset actual position to 0
   auto config = pwm.defaultConfig();
   config.copyFrom(info);
+  config.resolution = 11;
   config.start_pin = motor;
   pwm.begin(config); 
   starttime = millis();
@@ -105,6 +96,7 @@ void playTone(int motor, float volume, float duration, int frequency){
   sineWave.begin(info, frequency);
   auto config = pwm.defaultConfig();
   config.copyFrom(info);
+  config.resolution = 11;
   config.start_pin = motor;
   pwm.begin(config);
   starttime = millis();

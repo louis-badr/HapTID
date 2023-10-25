@@ -6,7 +6,10 @@ import soundfile as sf
 filename = input("Enter the name of the wav file (ex: filename.wav -> filename) > ")
 soundfile = filename + '.wav'
 desired_sample_rate = int(input("Enter the desired sample rate > "))
-pwm_resolution = int(input("Enter the PWM resolution (between 8 and 11) > "))
+pwm_resolution = int(input("Enter the desired bit depth (between 8 and 11) > "))
+output_filename = input("Enter the name of the output file (default is 'audiofile') > ")
+if (output_filename == ''):
+    output_filename = 'audiofile'
 data_in, datasamplerate = sf.read(soundfile)
 # This means stereo so extract one channel 0
 if len(data_in.shape)>1:
@@ -25,10 +28,10 @@ vrange = (maxValue - minValue)
 #print("value range", vrange)
 
 m68code = "//    File "+soundfile+ "\r\n\r\n"
-m68code += "int " + filename + "_pwm_res = " + str(pwm_resolution) + ";\r\n"
-m68code += "int " + filename + "_samplerate = " + str(int(desired_sample_rate)) + ";\r\n"
-m68code += "unsigned int " + filename + "_raw_len = " + str(len(data_out)) + "; \r\n\r\n"
-m68code += "const unsigned char " + filename + "_raw[] = {\r\n    "
+m68code += "int " + output_filename + "_pwm_res = " + str(pwm_resolution) + ";\r\n"
+m68code += "int " + output_filename + "_samplerate = " + str(int(desired_sample_rate)) + ";\r\n"
+m68code += "unsigned int " + output_filename + "_raw_len = " + str(len(data_out)) + "; \r\n\r\n"
+m68code += "const unsigned char " + output_filename + "_raw[] = {\r\n    "
 maxitemsperline = 16
 itemsonline = maxitemsperline
 firstvalue = 0
@@ -59,7 +62,7 @@ end_value = int( (firstvalue + lastvalue) / 2)
 m68code+=str(hex(end_value))+'    \r\n};'
 #print(m68code)
 
-with open(filename + '.h', 'wb') as file:
+with open(output_filename + '.h', 'wb') as file:
     file.write(m68code.encode('utf-8'))
 
 # plot wav file
