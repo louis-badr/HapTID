@@ -8,6 +8,8 @@ int shdnPins[3] = {22, 19, 4};
 int motorPins[6] = {32, 33, 25, 26, 27, 12};
 // tracks if audio is playing on a motor
 bool motorIsPlaying[6] = {0, 0, 0, 0, 0, 0};
+// help me
+StreamCopy motorCopier[6];
 
 //Data Flow: MemoryStream -> EncodedAudioStream  -> PWMAudioOutput
 AudioInfo info(8000, 1, 16);
@@ -19,25 +21,32 @@ MemoryStream wav(audiofile_raw, audiofile_raw_len);
 PWMAudioOutput pwm;          // PWM output 
 EncodedAudioStream out(&pwm, new WAVDecoder()); // Decoder stream
 
-// void startPlayAudioFile(int motor, float volume) {
-//   Stream copier(out, wav);
-//   out.begin();
-//   wav.begin();
-//   auto config = pwm.defaultConfig();
-//   config.copyFrom(info);
-//   config.resolution = 11;
-//   config.start_pin = motor;
-//   pwm.begin(config); 
-//   while (millis() - starttime <= duration) {
-//     copier.copy();
-//   }
-//   digitalWrite(motor, LOW);
-// }
+void stopPlay(int motorNo) {
+  motorIsPlaying[motorNo - 1] = 0;
+}
+
+void startPlayAudioFile(int motorNo, float volume) {
+  StreamCopy copier(out, wav);
+  motorCopier[motorNo - 1] = copier;
+  out.begin();
+  wav.begin();
+  auto config = pwm.defaultConfig();
+  config.copyFrom(info);
+  config.resolution = 11;
+  config.start_pin = motorPins[motorNo - 1];
+  pwm.begin(config);
+  motorIsPlaying[motorNo - 1] = 1;
+  while (motorIsPlaying[motorNo - 1] == 1) {
+    motorCopier[motorNo - 1].copy;
+  }
+  digitalWrite(motorPins[motorNo - 1], LOW);
+}
 
 // plays audio file on the selected motor - volume 0-1 - duration in ms 0-30000
 void playAudioFile(int motor, float volume, float duration) {
   unsigned long starttime = millis();
-  StreamCopy copier(out, wav);    // copy in to out
+  StreamCopy copier(out, wav);
+  motorCopier[motorNo - 1] = copier;    // copy in to out
   out.begin();   // indicate that we process the WAV header
   wav.begin();       // reset actual position to 0
   auto config = pwm.defaultConfig();
@@ -46,7 +55,7 @@ void playAudioFile(int motor, float volume, float duration) {
   config.start_pin = motor;
   pwm.begin(config); 
   while (millis() - starttime <= duration) {
-    copier.copy();
+    motorCopier[motorNo - 1].copy;
   }
   digitalWrite(motor, LOW);
 }
@@ -60,20 +69,21 @@ void playClick(int motor, int volume) {
   digitalWrite(motor, LOW);
 }
 
-// plays a tone on the selected motor - frequency (Hz) 0-20k - volume 0-1 - duration in ms 0-30000
-void playTone(int motor, float volume, float duration, int frequency) {
+// plays a tone on the selected motor (1 to 6) - frequency (Hz) (0 to 20k) - volume (0 to 1) - duration in ms (0 to 30000)
+void playTone(int motorNo, float volume, float duration, int frequency) {
   unsigned long starttime = millis();
-  StreamCopy copier(pwm, sound);
+  StreamCopy copierTone(pwm, sound);
+  motorCopier[motorNo - 1] = copierTone;
   sineWave.begin(info, frequency);
   auto config = pwm.defaultConfig();
   config.copyFrom(info);
   config.resolution = 11;
-  config.start_pin = motor;
+  config.start_pin = motorPins[motorNo - 1];
   pwm.begin(config);
   while (millis() - starttime <= duration) {
-    copier.copy();
+    motorCopier[motorNo - 1].copy();
   }
-  digitalWrite(motor, LOW);
+  digitalWrite(motorPins[motorNo - 1], LOW);
 }
 
 void playStartingSequence() {
@@ -110,9 +120,12 @@ void setup() {
   delay(5000);
   playStartingSequence();
   delay(1000);
-  //playAudioFile(motor6, 1, 5000);
+  startPlayAudioFile(1, 1);
+  unsigned long starttime = millis();
+  while (millis() - starttime <= 5000) {}
+  stopPlay(1);
 }
 
 void loop() {
-
+  // pour chaque moteur si is playing on copier
 }
