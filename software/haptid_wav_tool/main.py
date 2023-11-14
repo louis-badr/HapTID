@@ -6,6 +6,37 @@ import scipy.io.wavfile as wav
 import sys
 import wave
 
+def read_h_file(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read()
+
+            # Assuming the array is defined as unsigned char array[] = {...};
+            start_marker = 'const unsigned char wav_data[] = {'
+            end_marker = '};'
+
+            start_index = content.find(start_marker)
+            end_index = content.find(end_marker)
+
+            if start_index != -1 and end_index != -1:
+                array_content = content[start_index + len(start_marker):end_index]
+                array_content = array_content.strip()  # Remove leading and trailing spaces
+                array_elements = array_content.split(',')
+
+                # Convert array elements to integers (assuming hexadecimal format)
+                array_data = [int(element.strip(), 16) for element in array_elements]
+
+                # Print the array
+                print("Extracted Array:", array_data)
+                plt.plot(array_data)
+                plt.title(file_path)
+                plt.show()
+            else:
+                print("Array not found in the file.")
+
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+
 def resample_wav(input_file, target_sr, output_file):
     try:
         # Read the input WAV file
@@ -40,7 +71,7 @@ def wav_to_c_array(input_file, output_file):
     except Exception as e:
         print("An error occurred:", str(e))
 
-def read_wav_header(file_path):
+def read_wav_file(file_path):
     try:
         with wave.open(file_path, 'rb') as wf:
             print("WAV File Header Information:")
@@ -63,29 +94,35 @@ def read_wav_header(file_path):
 
 if __name__ == "__main__":
     print("\nPlease type the number of the function you want to use:")
-    print("1. resample .WAV file")
-    print("2. convert .WAV file to .h")
-    print("3. read header and plot .WAV file")
+    print("1. get .wav file header information and plot the audio signal")
+    print("2. get .h file header information and plot the audio signal")
+    print("3. resample a .wav file")
+    print("2. convert a .wav file into a .h file")
+    
     input_num = input(">> ")
     match input_num:
         case "1":
-            print('\nType the path of the .WAV file you want to resample (ex: ./test.wav):')
+            print('\nEnter the path of the .wav file (ex: ./test.wav):')
+            file_path = input('>> ')
+            read_wav_file(file_path)
+        case "2":
+            print('\nEnter the path of the .h file (ex: ./test.wav):')
+            file_path = input('>> ')
+            read_h_file(file_path)
+        case "3":
+            print('\nEnter the path of the .wav file (ex: ./input.wav):')
             input_file = input('>> ')
             print('Type the new sample rate value (ex: 8000):')
             target_sr = input('>> ')
             target_sr = int(target_sr)
-            print('Type the path of the new .WAV file (ex: ./test.wav):')
+            print('Enter the path for the new .wav file (ex: ./output.wav):')
             output_file = input('>> ')
             resample_wav(input_file, target_sr, output_file)
-        case "2":
-            print('\nType the path of the .WAV file you want to convert (ex: ./test.wav):')
+        case "4":
+            print('\nEnter the path of the .wav file (ex: ./input.wav):')
             input_file = input('>> ')
-            print('Type the path of the output .h file (ex: ./test.h):')
+            print('Enter the path of the new .h file (ex: ./output.h):')
             output_file = input('>> ')
             wav_to_c_array(input_file, output_file)
-        case "3":
-            print('\nType the path of the .WAV file you want to read the header of (ex: ./test.wav):')
-            file_path = input('>> ')
-            read_wav_header(file_path)
         case _:
             print("Invalid input")

@@ -14,9 +14,12 @@ class CRT:
     def __init__(self):
         # arduino things
         self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=.1)
+        self.ser_haptid = serial.Serial(constants.com_port_haptid, 115200, timeout=.1)
         # dirty fix to make sure the arduino is ready to receive data
         self.ser_mega.close()
         self.ser_mega.open()
+        self.ser_haptid.close()
+        self.ser_haptid.open()
 
         # pygame things
         pygame.display.set_caption("Choice Reaction Time - HapTID")
@@ -29,6 +32,9 @@ class CRT:
         # positions of the circles for each finger
         self.circles_pos_x = [0.673, 0.582, 0.496, 0.412, 0.33]
         self.circles_pos_y = [0.498, 0.19, 0.151, 0.189, 0.34]
+
+        # set vibration intensity
+        self.vib_lvl = str(constants.wrist_threshold * 1.5)
 
         # load the hand image
         hand_img = pygame.image.load('assets/hand_drawing.png').convert_alpha()
@@ -66,6 +72,7 @@ class CRT:
             # si la prochaine tâche n'est pas un CRT on retourne au menu
             if next_task[1] != 'CRT':
                 self.ser_mega.close()
+                self.ser_haptid.close()
                 menu_screen = menu.Menu()
                 menu_screen.run()
             # on récupère les infos de l'exercice
@@ -97,11 +104,13 @@ class CRT:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.ser_mega.close()
+                        self.ser_haptid.close()
                         pygame.quit()
                         sys.exit()
                     if event.type==pygame.MOUSEBUTTONDOWN:
                         if menu_button.collidepoint(event.pos):
                             self.ser_mega.close()
+                            self.ser_haptid.close()
                             menu_screen = menu.Menu()
                             menu_screen.run()
                     if event.type == pygame.KEYDOWN:
@@ -111,6 +120,7 @@ class CRT:
             # on lance la vibration du poignet si nécessaire
             if wrist_vibration:
                 print('Start wrist vibration')
+                self.ser_haptid.write(self.vib_lvl.encode())
             # on affiche la main puis on attend un temps aléatoire
             self.screen.fill('black')
             self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
@@ -126,6 +136,7 @@ class CRT:
                 elif ws_type == 'tactile':
                     print('WS Type : Tactile')
                     # vibrate here
+                    self.ser_haptid.write(b'2.0')
                 pygame.time.wait(500)
                 self.screen.fill('black')
                 self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
@@ -137,6 +148,7 @@ class CRT:
             elif is_type == 'tactile':
                 print('IS Type : Tactile')
                 # vibrate here
+                self.ser_haptid.write(str(finger+2).encode())
 
 
             # on demande au mega de lancer la fonction de record
@@ -174,12 +186,14 @@ class CRT:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.ser_mega.close()
+                        self.ser_haptid.close()
                         pygame.quit()
                         sys.exit()
                 self.clock.tick(constants.framerate)
             # on arrête la vibration du poignet si nécessaire
             if wrist_vibration:
                 print('Stop wrist vibration')
+                self.ser_haptid.write(b'0.0')
             # on ajoute l'exercice à la liste des exercices faits
             constants.completed_crt_tasks.append(constants.tasks.pop(0))
             print(constants.completed_crt_tasks)

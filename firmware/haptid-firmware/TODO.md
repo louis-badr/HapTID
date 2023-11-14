@@ -1,5 +1,7 @@
-# to do list
+# TODO
 
-- [ ] Play audio files other than alice.h
-- [ ] Get volume control
-- [ ] Get simultaneous multioutput
+- [x] Play clicks
+- [ ] Play a tone
+- [ ] Play a generated .h file
+- [ ] Play signals simultaneously
+- [ ] Add volume control
