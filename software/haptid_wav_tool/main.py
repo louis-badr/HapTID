@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print("1. get .wav file header information and plot the audio signal")
     print("2. get .h file header information and plot the audio signal")
     print("3. resample a .wav file")
-    print("2. convert a .wav file into a .h file")
+    print("4. convert a .wav file into a .h file")
     
     input_num = input(">> ")
     match input_num:
