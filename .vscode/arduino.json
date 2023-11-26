@@ -1,7 +1,7 @@
 {
     "sketch": "firmware\\haptid-firmware-study-2\\haptid-firmware-study-2.ino",
-    "configuration": "FlashFreq=80,UploadSpeed=921600,DebugLevel=none,EraseFlash=none",
-    "board": "esp32:esp32:esp32doit-devkit-v1",
+    "configuration": "usb=serial,speed=600,opt=o2std,keys=en-us",
+    "board": "teensy:avr:teensy41",
     "programmer": "esptool",
-    "port": "COM3"
+    "port": "COM6"
 }

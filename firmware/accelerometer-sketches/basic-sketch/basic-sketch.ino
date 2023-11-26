@@ -1,42 +1,189 @@
-const int xpin = 34;                  // x-axis of the accelerometer
-const int ypin = 39;                  // y-axis
-const int zpin = 36;                  // z-axis (only on 3-axis models)
-int xVal = 0;
-int yVal = 0;
-int zVal = 0;
-float xG = 0;
-float yG = 0;
-float zG = 0;
-float meanG = 0;
+// Uses the Arduino Serial Monitor to trigger calibrations
+// Runs a calibration each time it receives a "1" from the USB serial 
+// The calibration should be performed with the accelerometer rotated to min and max positions for each Axis
+// - calibrations for the same Axis can be repeated
+// - Results for each calibration are retained through the entire calibration procedure
+// - Mix/Max Values of 512 indicate that an axis has not been calibrated.
 
-void setup() {
-  Serial.begin(115200);
+// Teensy 3.1 Analog pins for the X, Y, Z outputs of the Accelerometer
+const int xInput = A12;
+const int yInput = A11;
+const int zInput = A10;
+
+// Raw Ranges:
+// initialize to mid-range and allow calibration to
+// find the minimum and maximum for each axis
+int xRawMin = 512;
+int xRawMax = 512;
+ 
+int yRawMin = 512;
+int yRawMax = 512;
+ 
+int zRawMin = 512;
+int zRawMax = 512;
+ 
+ 
+// Take multiple samples
+const int sampleSize = 10;
+
+int xRaw;
+int yRaw;
+int zRaw;
+
+void setup() 
+{
+  //Serial.begin(38400);
 }
+ 
+void loop() 
+{
+   char startByte = '0';
+   if (Serial.available() > 0) 
+   {
+    // read the byte
+    startByte = Serial.read();
+    Serial.print("Instruction received ");
+    Serial.println(startByte);
+   }
+  
+  if((int)startByte == '1')
+  {
+    delay(250);
+    xRaw = ReadAxis(xInput);
+    yRaw = ReadAxis(yInput);
+    zRaw = ReadAxis(zInput);
+  
+    AutoCalibrate(xRaw, yRaw, zRaw);
 
-void loop() {
-  // read values - 12-bit so between 0 and 4095
-  xVal = analogRead(xpin);
-  yVal = analogRead(ypin);
-  zVal = analogRead(zpin);
+    Serial.print("Raw Ranges: X: ");
+    Serial.print(xRawMin);
+    Serial.print("-");
+    Serial.print(xRawMax);
+    
+    Serial.print(", Y: ");
+    Serial.print(yRawMin);
+    Serial.print("-");
+    Serial.print(yRawMax);
+    
+    Serial.print(", Z: ");
+    Serial.print(zRawMin);
+    Serial.print("-");
+    Serial.print(zRawMax);
+    Serial.println();
+    Serial.print(xRaw);
+    Serial.print(", ");
+    Serial.print(yRaw);
+    Serial.print(", ");
+    Serial.print(zRaw);
+    
+    // Convert raw values to 'milli-Gs" - -3/3G for ADXL335
+    long xScaled = map(xRaw, xRawMin, xRawMax, -3000, 3000);
+    long yScaled = map(yRaw, yRawMin, yRawMax, -3000, 3000);
+    long zScaled = map(zRaw, zRawMin, zRawMax, -3000, 3000);
+  
+    // re-scale to fractional Gs
+    float xAccel = xScaled / 1000.0;
+    float yAccel = yScaled / 1000.0;
+    float zAccel = zScaled / 1000.0;
+  
+    Serial.print(" :: ");
+    Serial.print(xAccel);
+    Serial.print("G, ");
+    Serial.print(yAccel);
+    Serial.print("G, ");
+    Serial.print(zAccel);
+    Serial.println("G");
+    
+    //reset the startByte
+    startByte = '0';
+  }
 
-  // to G values
-  xG = map(xVal, 0, 4095, -3000, 3000);
-  xG  = xG / 1000;
-  yG = map(yVal, 0, 4095, -3000, 3000);
-  yG = yG / 1000;
-  zG = map(zVal, 0, 4095, -3000, 3000);
-  zG = zG / 1000;
+  if((int)startByte == '2')
+  {
+    long unsigned int sampleDuration = 3000;
+    int sampleInterval = 250;
+    long totalXAcc = 0;
+    long totalYAcc = 0;
+    long totalZAcc = 0;
+    long totalAcc = 0;
+    unsigned long startTime = millis();
+    while (millis() - startTime <= sampleDuration)
+    {
+      xRaw = analogRead(xInput);
+      yRaw = analogRead(yInput);
+      zRaw = analogRead(zInput);
+      // Convert raw values to 'milli-Gs" - -3/3G for ADXL335
+      long xScaled = map(xRaw, xRawMin, xRawMax, -3000, 3000);
+      long yScaled = map(yRaw, yRawMin, yRawMax, -3000, 3000);
+      long zScaled = map(zRaw, zRawMin, zRawMax, -3000, 3000);
+    
+      // re-scale to fractional Gs
+      float xAccel = xScaled / 1000.0;
+      float yAccel = yScaled / 1000.0;
+      float zAccel = zScaled / 1000.0;
 
-  // mean of G values - should = to -1G at rest
-  meanG = (xG+yG+zG)/3;
-
-  Serial.print(xG);
-  Serial.print(",");
-  Serial.print(yG);
-  Serial.print(",");
-  Serial.print(zG);
-  Serial.print(",");
-  Serial.print(meanG);
-  Serial.println();
-  delay(10);
+      totalXAcc += pow(xAccel, 2);
+      totalYAcc += pow(yAccel, 2);
+      totalZAcc += pow(zAccel, 2);
+      totalAcc += totalXAcc + totalYAcc + totalZAcc;
+      delay(sampleInterval);
+    }
+    float intensityX = sqrt(totalXAcc / (sampleDuration / sampleInterval));
+    float intensityY = sqrt(totalYAcc / (sampleDuration / sampleInterval));
+    float intensityZ = sqrt(totalZAcc / (sampleDuration / sampleInterval));
+    float intensity = sqrt(totalAcc / (sampleDuration / sampleInterval));
+    Serial.println(intensityX);
+    Serial.println(intensityY);
+    Serial.println(intensityZ);
+    Serial.println(intensity);
+  }
+}
+ 
+//
+// Read "sampleSize" samples and report the average
+//
+int ReadAxis(int axisPin)
+{
+  long reading = 0;
+  analogRead(axisPin);
+  delay(1);
+  for (int i = 0; i < sampleSize; i++)
+  {
+    reading += analogRead(axisPin);
+  }
+  return reading/sampleSize;
+}
+ 
+//
+// Find the extreme raw readings from each axis
+//
+void AutoCalibrate(int xRaw, int yRaw, int zRaw)
+{
+  Serial.println("Calibrate");
+  if (xRaw < xRawMin)
+  {
+    xRawMin = xRaw;
+  }
+  if (xRaw > xRawMax)
+  {
+    xRawMax = xRaw;
+  }
+  
+  if (yRaw < yRawMin)
+  {
+    yRawMin = yRaw;
+  }
+  if (yRaw > yRawMax)
+  {
+    yRawMax = yRaw;
+  }
+ 
+  if (zRaw < zRawMin)
+  {
+    zRawMin = zRaw;
+  }
+  if (zRaw > zRawMax)
+  {
+    zRawMax = zRaw;
+  }
 }
