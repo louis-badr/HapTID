@@ -1,9 +1,9 @@
 #include "AudioTools.h"
-#include "whitenoise8000.h"
+#include "whitenoise16000.h"
 
 
-int shdnPins[3] = {22, 19, 4};  // keep pin on HIGH to run the amp - each amp controls two motors
-int motorPins[6] = {32, 33, 25, 26, 27, 12};  // in order from left to right
+const int shdnPins[3] = {22, 19, 4};  // keep pin on HIGH to run the amp - each amp controls two motors
+const int motorPins[6] = {32, 33, 25, 26, 27, 12};  // in order from left to right
 
 int receivedValue = 0;  // single int value received from serial between 0 and 506
 bool playNoise = false;
@@ -12,7 +12,7 @@ unsigned long clickTimer;
 bool isClicking = false;
 int motorClicking;
 
-AudioInfo info(8000, 1, 16);
+AudioInfo info(16000, 1, 16);
 SineWaveGenerator<int16_t> sineWave(32000); // subclass of SoundGenerator with max amplitude of 32000
 GeneratedSoundStream<int16_t> sineTone(sineWave);  // Stream generated from sine wave
 MemoryStream wav(wav_data, wav_data_len);
@@ -21,8 +21,7 @@ EncodedAudioStream out(&pwm, new WAVDecoder()); // Decoder stream
 
 StreamCopy copierTone(pwm, sineTone);
 StreamCopy copierWav(out, wav);
-PWMConfig configTone = pwm.defaultConfig();
-PWMConfig configWav = pwm.defaultConfig();
+PWMConfig config = pwm.defaultConfig();
 
 void setup() {
   Serial.begin(115200);
@@ -41,22 +40,16 @@ void setup() {
   out.begin();
   wav.setLoop(true);
   wav.begin();
-  configTone.sample_rate = 8000;
-  configTone.channels = 1;
-  configTone.bits_per_sample = 16;
-  configTone.resolution = 11;
-  configTone.start_pin = motorPins[5];
-  configWav.sample_rate = 8000;
-  configWav.channels = 1;
-  configWav.bits_per_sample = 16;
-  configWav.resolution = 11;
-  configWav.start_pin = motorPins[0];
-  delay(3000);
+  config.sample_rate = 16000;
+  config.channels = 1;
+  config.bits_per_sample = 16;
+  config.resolution = 11;
 }
 
 void loop() {
   if (Serial.available() > 0) {
     receivedValue = Serial.parseInt();
+    Serial.println(receivedValue);
     // 501 to 506 are clicks - left to right
     if (receivedValue >= 501 && receivedValue <= 506) {
       digitalWrite(motorPins[receivedValue - 501], HIGH);
@@ -71,11 +64,12 @@ void loop() {
         playTone = false;
       } else if (receivedValue <= 300) {
         sineWave.begin(info, 140);
-        pwm.begin(configTone);
+        config.pins()[0] = 27;
+        pwm.begin(config);
         playTone = true;
       } else if (receivedValue <= 500) {
-        sineWave.begin(info, 200);
-        pwm.begin(configTone);
+        config.pins()[0] = 27;
+        pwm.begin(config);   
         playTone = true;
       }
     }
@@ -85,7 +79,8 @@ void loop() {
         digitalWrite(motorPins[0], LOW);
         playNoise = false;
       } else {
-        pwm.begin(configWav);
+        config.pins()[0] = 32;
+        pwm.begin(config);
         playNoise = true; 
       }
     }
@@ -96,7 +91,7 @@ void loop() {
   if (playTone) {
     copierTone.copy();
   }
-  if (isClicking && millis() - clickTimer >= 8) {
+  if (isClicking && millis() - clickTimer >= 10) {
     digitalWrite(motorPins[motorClicking], LOW);
     isClicking = false;
   }
