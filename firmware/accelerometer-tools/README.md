@@ -2,7 +2,7 @@
 
 The aim of using an accelerometer with vibration motors is to:
 - Verify the latency of the system
-- Equalize the frequency response of the motors
+- Analyze and equalize the frequency response of the motors
 
 ## Wiring
 
