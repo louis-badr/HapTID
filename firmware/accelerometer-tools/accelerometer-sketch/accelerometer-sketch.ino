@@ -85,6 +85,10 @@ axesVal readAllAxesCentered()
 // Print the value of all axes
 void printAllAxes(axesVal axesVal)
 {
+  Serial.print(.25);
+  Serial.print(",");
+  Serial.print(-0.25);
+  Serial.print(",");
   //Serial.print("xG:");
   Serial.print(axesVal.x, 4);
   Serial.print(",");
@@ -170,5 +174,6 @@ void loop()
     {
       printAllAxes(readAllAxesG());
     }
+    delay(.1);
   }
 }

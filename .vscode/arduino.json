@@ -1,5 +1,5 @@
 {
-    "sketch": "firmware\\haptid-firmware-study-2\\haptid-firmware-study-2.ino",
+    "sketch": "firmware\\haptid-firmware-study\\haptid-firmware-study.ino",
     "configuration": "usb=serial,speed=600,opt=o2std,keys=en-us",
     "board": "teensy:avr:teensy41",
     "programmer": "esptool",

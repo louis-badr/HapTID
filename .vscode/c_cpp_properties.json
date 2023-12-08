@@ -12,9 +12,8 @@
             ],
             "intelliSenseMode": "gcc-x64",
             "includePath": [
-                "C:\\Users\\Louis\\AppData\\Local\\Temp\\arduino\\sketches\\2D143C28D43C2093F3FCEB1309CAA8A0\\pch",
+                "C:\\Users\\Louis\\AppData\\Local\\Temp\\arduino\\sketches\\BECBFCFB25645255D9CED9DE55C7E39E\\pch",
                 "C:\\Users\\Louis\\AppData\\Local\\Arduino15\\packages\\teensy\\hardware\\avr\\1.58.1\\cores\\teensy4",
-                "C:\\Users\\Louis\\Documents\\Arduino\\libraries\\arduino-audio-tools\\src",
                 "c:\\users\\louis\\appdata\\local\\arduino15\\packages\\teensy\\tools\\teensy-compile\\11.3.1\\arm\\arm-none-eabi\\include\\c++\\11.3.1",
                 "c:\\users\\louis\\appdata\\local\\arduino15\\packages\\teensy\\tools\\teensy-compile\\11.3.1\\arm\\arm-none-eabi\\include\\c++\\11.3.1\\arm-none-eabi",
                 "c:\\users\\louis\\appdata\\local\\arduino15\\packages\\teensy\\tools\\teensy-compile\\11.3.1\\arm\\arm-none-eabi\\include\\c++\\11.3.1\\backward",
@@ -23,7 +22,7 @@
                 "c:\\users\\louis\\appdata\\local\\arduino15\\packages\\teensy\\tools\\teensy-compile\\11.3.1\\arm\\arm-none-eabi\\include"
             ],
             "forcedInclude": [
-                "C:\\Users\\Louis\\AppData\\Local\\Temp\\arduino\\sketches\\2D143C28D43C2093F3FCEB1309CAA8A0\\pch\\Arduino.h"
+                "C:\\Users\\Louis\\AppData\\Local\\Temp\\arduino\\sketches\\BECBFCFB25645255D9CED9DE55C7E39E\\pch\\Arduino.h"
             ],
             "cStandard": "c11",
             "cppStandard": "c++14",
