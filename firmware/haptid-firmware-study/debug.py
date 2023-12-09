@@ -4,5 +4,6 @@ data = "2047 2168 2289 2409 2527 2644 2759 2872 2981 3088 3190 3289 3383 3473 35
 data = data.split(" ")
 data = [int(i) for i in data]
 print(len(data))
+print(data)
 plt.stairs(data)
 plt.show()
