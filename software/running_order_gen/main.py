@@ -5,11 +5,11 @@ import random
 #* Generation parameters
 
 # number of participants
-nb_participants = 2
+nb_participants = 1
 # number of trials per condition for the Choice Reaction Time (CRT) task
-nb_trials_crt = 1
+nb_trials_crt = 5
 # number of trials per condition for the Force Control (FC) task
-nb_trials_fc = 1
+nb_trials_fc = 0
 
 #* Task parameters
 

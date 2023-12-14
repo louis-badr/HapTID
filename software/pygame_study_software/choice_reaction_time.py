@@ -34,7 +34,7 @@ class CRT:
         self.circles_pos_y = [0.498, 0.19, 0.151, 0.189, 0.34]
 
         # set vibration intensity
-        self.vib_lvl = str(constants.wrist_threshold * 1.5)
+        self.wrist_vib_lvl = constants.wrist_threshold * constants.sr_coeff
 
         # load the hand image
         hand_img = pygame.image.load('assets/hand_drawing.png').convert_alpha()
@@ -66,7 +66,6 @@ class CRT:
 
     def run(self):
         while True:
-
             # on récupère les infos de la prochaine tâche
             next_task = constants.tasks[0]
             # si la prochaine tâche n'est pas un CRT on retourne au menu
@@ -93,7 +92,6 @@ class CRT:
                     finger = 4
                 case other:
                     finger = 0
-
             # on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
             running = True
             while running:
@@ -119,8 +117,10 @@ class CRT:
                 self.clock.tick(constants.framerate)
             # on lance la vibration du poignet si nécessaire
             if wrist_vibration:
-                print('Start wrist vibration')
-                self.ser_haptid.write(self.vib_lvl.encode())
+                #! vibrate here
+                print(f'Start wrist vibration at {self.wrist_vib_lvl}')
+                self.ser_haptid.write(f'{int(self.wrist_vib_lvl * 1000)}'.encode())
+                print(f'Sent to serial : {int(self.wrist_vib_lvl * 1000)}')
             # on affiche la main puis on attend un temps aléatoire
             self.screen.fill('black')
             self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
@@ -135,8 +135,8 @@ class CRT:
                     pygame.display.update()
                 elif ws_type == 'tactile':
                     print('WS Type : Tactile')
-                    # vibrate here
-                    self.ser_haptid.write(b'2.0')
+                    #! click on all fingers
+                    self.ser_haptid.write(b'-7')
                 pygame.time.wait(500)
                 self.screen.fill('black')
                 self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
@@ -147,8 +147,8 @@ class CRT:
                 pygame.display.update()
             elif is_type == 'tactile':
                 print('IS Type : Tactile')
-                # vibrate here
-                self.ser_haptid.write(str(finger+2).encode())
+                #! vibrate here
+                self.ser_haptid.write(str(-finger-2).encode())
 
 
             # on demande au mega de lancer la fonction de record
@@ -190,10 +190,10 @@ class CRT:
                         pygame.quit()
                         sys.exit()
                 self.clock.tick(constants.framerate)
-            # on arrête la vibration du poignet si nécessaire
+            #! on arrête la vibration du poignet si nécessaire
             if wrist_vibration:
                 print('Stop wrist vibration')
-                self.ser_haptid.write(b'0.0')
+                self.ser_haptid.write(b'0')
             # on ajoute l'exercice à la liste des exercices faits
             constants.completed_crt_tasks.append(constants.tasks.pop(0))
             print(constants.completed_crt_tasks)

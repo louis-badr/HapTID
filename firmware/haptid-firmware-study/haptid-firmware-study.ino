@@ -18,14 +18,16 @@ int arrayLength = 0;  // length of the array being played
 hw_timer_t * timer = NULL; // we only need one timer for this program
 int receivedValue = 0;  // value received from the serial port
 int soundValue = 0;
+int clickValue;
+unsigned long clickTimer = 0;
 
-// Function to print an array
+// Debugging functions
 void printArray(int arr[], int size) {
   for (int i = 0; i < size; i++) {
     Serial.print(arr[i]);
     Serial.print(" ");
   }
-  Serial.println(); // Print a newline character for better formatting
+  Serial.println();
 }
 
 // Generates a sine table at a given frequency and sample rate
@@ -44,8 +46,7 @@ int sineTable150Length = sampleRate / 150;
 int sineTable190Length = sampleRate / 190;
 uint16_t* sineTable150 = generateSineTable(150, sampleRate); // 150 Hz sine wave fo the motor on the index finger
 uint16_t* sineTable190 = generateSineTable(190, sampleRate); // 190 Hz sine wave fo the motor on the index finger
-unsigned long clickTimer = 0;
-bool isClicking = false;
+
 
 void IRAM_ATTR onTimer()
 {
@@ -53,15 +54,21 @@ void IRAM_ATTR onTimer()
   {
     if(arrayPosition < arrayLength)
     {
-      if (soundValue <= 100)
+      if (soundValue <= 100000)
       {
-        ledcWrite(0, whitenoise_data[arrayPosition] * soundValue / 100);
-      }else if (soundValue <= 200)
+        ledcWrite(0, whitenoise_data[arrayPosition] * soundValue / 100000);
+      }else if (soundValue <= 200000)
       {
-        ledcWrite(1, sineTable150[arrayPosition] * (soundValue - 100) / 100);
-      } else if (soundValue <= 300)
+        ledcWrite(2, sineTable150[arrayPosition] * (soundValue - 100000) / 100000);
+      } else if (soundValue <= 300000)
       {
-        ledcWrite(1, sineTable190[arrayPosition] * (soundValue - 200) / 100);
+        ledcWrite(4, sineTable150[arrayPosition] * (soundValue - 200000) / 100000);
+      } else if (soundValue <= 400000)
+      {
+        ledcWrite(2, sineTable190[arrayPosition] * (soundValue - 300000) / 100000);
+      } else if (soundValue <= 500000)
+      {
+        ledcWrite(4, sineTable190[arrayPosition] * (soundValue - 400000) / 100000);
       }
       arrayPosition++;
     } else
@@ -82,7 +89,7 @@ void playStartSequence()
     ledcWrite(i, 0);
     delay(250);
   }
-  delay(500);
+  delay(500); 
   // do it in reverse
   for (int i = 5; i >= 0; i--)
   {
@@ -124,34 +131,42 @@ void setup()
 
 void loop()
 {
-  if (Serial.available() > 0) {
+  if (Serial.available() > 0)
+  {
     receivedValue = Serial.parseInt();
     // Serial.println(receivedValue);
-    // 501 to 506 are clicks - left to right
-    if (receivedValue >= 301 && receivedValue <= 306)
+    // -1 to -7 are clicks
+    if (receivedValue < 0)
     {
-      // if the motor is not clicking
-      if (!isClicking)
+      clickValue = abs(receivedValue) - 1;
+      // Serial.println(clickValue);
+      // if no motor is clicking
+      if (clickValue != 6)
       {
-        ledcWrite(receivedValue - 301, 0);
-        ledcWrite(receivedValue - 301, pwmMax);
-        // set the click time
-        clickTimer = millis();
-        // set the motor to clicking
-        isClicking = true;
+        ledcWrite(clickValue, 0);
+        ledcWrite(clickValue, pwmMax);
+      } else
+      {
+        for (int i = 1; i <= 5; i++)
+        {
+          ledcWrite(i, 0);
+          ledcWrite(i, pwmMax);
+        }
       }
+      // set the click time
+      clickTimer = millis();
     } else 
     {
       soundValue = receivedValue;
-      if (soundValue <= 100)
+      if (soundValue <= 100000)
       {
         arrayPosition = 0;
         arrayLength = whitenoise_length;
-      } else if (soundValue <= 200)
+      } else if (soundValue <= 300000)
       {
         arrayPosition = 0;
         arrayLength = sineTable150Length;
-      } else if (soundValue <= 300)
+      } else if (soundValue <= 500000)
       {
         arrayPosition = 0;
         arrayLength = sineTable190Length;
@@ -159,15 +174,24 @@ void loop()
     }
   }
   // if the motor is clicking
-  if (isClicking)
+  if (clickValue != 0)
   {
     // if more than 10 ms have passed since the click
     if (millis() - clickTimer > 7)
     {
       // turn off the motor
-      ledcWrite(receivedValue - 301, 0);
+      if (clickValue != 6)
+      {
+        ledcWrite(clickValue, 0);
+      } else
+      {
+        for (int i = 1; i <= 5; i++)
+        {
+          ledcWrite(i, 0);
+        }
+      }
       // set the motor to not clicking
-      isClicking = false;
+      clickValue = 0;
     }
   }
 }

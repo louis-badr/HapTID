@@ -1,7 +1,7 @@
 # HapTID - Haptic Technology for Improved Dexterity
 
 <p align="center">
-  <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-3196c.appspot.com/o/gallery%2Fwebp%2Fhaptid-worn-1.JPG?alt=media&token=92181ab5-5d4f-42ef-9671-544301b98b53" alt="HapTID device" width="300"/>
+  <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-3196c.appspot.com/o/gallery%2Fwebp%2Fhaptid-worn-1.JPG?alt=media&token=92181ab5-5d4f-42ef-9671-544301b98b53" alt="HapTID device" width="350"/>
 </p>
 
 HapTID is a study on how vibrotactile stimulation can improve manual dexterity in healthy subjects. In this repository you will find:
