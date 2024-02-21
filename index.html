@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Demo Dashboard • HapTID</title>
+        <base href="/HapTID/">
+        <meta name="author" content="Louis Badr">
+        <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+        <div class="dashboard__container">
+            <button id="serial_connect_button" onclick="listSerial()">CONNECT</button>
+            <button id="info_button"><b>i</b></button>
+            <h1> HapTID Demo Dashboard</h1>
+            <div class="dashboard__header__buttons">
+                <button class="tablink active" onclick="openTab(event, 'sine')">SINE</button>
+                <button class="tablink" onclick="openTab(event, 'noise')">NOISE</button>
+                <button class="tablink" onclick="openTab(event, 'clicks')">CLICKS</button>
+                <button class="tablink" onclick="openTab(event, 'custom')">CUSTOM</button>
+            </div>
+            <div id="sine" class="tab">
+                <div class="sliders__container">
+                    <p>Volume</p>
+                    <input type="range" min="0.01" max="100" value="5" step="0.01" class="slider" id="sineVolumeSlider">
+                    <p><span id="sineVolumeOutput"></span>%</p>
+                    <p>Frequency</p>
+                    <input type="range" min="1" max="1000" value="150" class="slider" id="sineFrequencySlider">
+                    <p><span id="sineFrequencyOutput"></span>Hz</p>
+                </div>
+            </div>
+            <div id="noise" class="tab">
+                <div class="sliders__container">
+                    <p>Volume</p>
+                    <input type="range" min="0.01" max="100" value="5" step="0.01" class="slider" id="noiseVolumeSlider">
+                    <p><span id="noiseVolumeOutput"></span>%</p>
+                </div>
+            </div>
+            <div id="clicks" class="tab">
+                <div class="sliders__container">
+                    <p>Volume</p>
+                    <input type="range" min="0.01" max="100" value="100" step="0.01" class="slider" id="clicksVolumeSlider">
+                    <p><span id="clicksVolumeOutput"></span>%</p>
+                    <p>Number of clicks</p>
+                    <input type="range" min="1" max="10" value="3" class="slider" id="clicksNumberSlider">
+                    <p><span id="clicksNumberOutput"></span></p>
+                    <p>Spacing between clicks</p>
+                    <input type="range" min="1" max="1000" value="50" class="slider" id="clicksSpacingSlider">
+                    <p><span id="clicksSpacingOutput"></span>ms</p>
+                </div>
+            </div>
+            <div id="custom" class="tab">
+                <input type="text" id="array_input_field" placeholder="Enter values separated by commas">
+            </div>
+            <div class="dashboard__header__buttons">
+                <button class="motortab active" onclick='selectMotor(event, "1")'>1</button>
+                <button class="motortab"onclick='selectMotor(event, "2")'>2</button>
+                <button class="motortab"onclick='selectMotor(event, "3")'>3</button>
+                <button class="motortab"onclick='selectMotor(event, "4")'>4</button>
+                <button class="motortab"onclick='selectMotor(event, "5")'>5</button>
+                <button class="motortab"onclick='selectMotor(event, "6")'>6</button>
+            </div>
+            <div class="dashboard__footer__buttons">
+                <button id="load_button">LOAD</button>
+                <button id="start_button">START</button>
+                <button id="stop_button">STOP</button>
+            </div>
+            <div id="myPlot"></div>
+        </div>
+        <script src="/js/constants.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="/js/plot.js"></script>
+        <script src="/js/tabs.js"></script>
+        <script src="/js/serial.js"></script>
+    </body>
+</html>

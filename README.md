@@ -1,23 +1,15 @@
-# HapTID - Haptic Technology for Improved Dexterity
+# HapTID Web Demo Dashboard
 
-<p align="center">
-  <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-3196c.appspot.com/o/gallery%2Fwebp%2Fhaptid-worn-1.JPG?alt=media&token=92181ab5-5d4f-42ef-9671-544301b98b53" alt="HapTID device" width="350"/>
-</p>
+## Instructions
 
-HapTID is a study on how vibrotactile stimulation can improve manual dexterity in healthy subjects. In this repository you will find:
+1. Connect a vibration motor or speaker on each of the 6 ports of the HapTID device
+2. Plug the HapTID device into a power source (power bank or wall outlet) via USB-C (5V, min 2A) - A red LED will light up
+3. Connect your PC to the HapTID device via micro-USB
+4. Press the power button on the HapTID device - A green LED will light up and a click should play on each of the 6 ports
+5. Click on the "Connect" button at the top left of the dashboard and select the COM port of the HapTID device (only works on Chrome, Edge, and Opera)
 
-- Hardware :
-    - The parts list and assembly guide of the device
-    - CAD files for the 3D printed parts
-    - Electronic schematics and PCB design files
+- You can select a signal and play with the sliders or paste your own signal (13-bit, 8kHz) in the text area of the CUSTOM tab
+ 
+- Click on LOAD to send the signal to the HapTID device and wait for the graph to update
 
-- Software :
-    - A GUI to test motors via I2S
-    - A GUI for the study on healthy subjects
-    - A script to generate the running order of the tasks and parameters for the study
-    - A tool to convert .wav files into playable .h files for the device
-
-- Firmware :
-    - An Arduino sketch for the GUI to test motors via I2S
-    - An Arduino sketch for the study on healthy subjects
-    - Arduino sketches to test motor vibrations using an accelerometer
+- Click on START button to start the signal playback, it will play in a loop until you click on the STOP button

@@ -1,0 +1,269 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+
+    --color-dark: #04071B;
+    --color-light: #F4EFDC;
+    --color-accent: #2E45ED;
+    --color-red: #E34D55;
+    --color-green: #318F48;
+}
+
+body {
+    font-family: 'Roboto';
+    font-weight: 400;
+    line-height: 1.5;
+    font-size: 1.2rem;
+    background: var(--color-dark);
+    color: var(--color-light);
+    display: flex;
+    justify-content: center;
+}
+
+canvas {
+    position: absolute;
+    display: block;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 1.9rem;
+    color: var(--color-accent);
+    padding: 16px;
+}
+
+button {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-light);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
+
+.dashboard__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: clamp(500px, 60vw, 1000px);
+}
+
+.dashboard__header__buttons {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 8px;
+    align-items: center;
+    background: var(--color-light);
+}
+
+.tablink {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    color: var(--color-dark);
+    cursor: pointer;
+}
+
+.tablink:hover {
+    color: var(--color-accent);
+}
+
+.tablink.active {
+    background: var(--color-accent);
+    color: var(--color-light);
+}
+
+.motortab {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    color: var(--color-dark);
+    cursor: pointer;
+}
+
+.motortab:hover {
+    color: var(--color-accent);
+}
+
+.motortab.active {
+    background: var(--color-accent);
+    color: var(--color-light);
+}
+
+.tab {
+    padding: 16px;
+}
+
+#sine {
+    width: 100%;
+}
+
+#noise {
+    width: 100%;
+    display: none;
+}
+
+#clicks {
+    width: 100%;
+    display: none;
+}
+
+#custom {
+    width: 100%;
+    display: none;
+}
+
+.sliders__container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 2px;  
+    background: var(--color-light);
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; 
+    background: var(--color-accent);
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    filter: brightness(75%);
+}
+
+.slider::-moz-range-thumb:hover {
+    filter: brightness(75%);
+}
+
+.dashboard__footer__buttons {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+}
+
+#load_button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-accent);
+    color: var(--color-light);
+    cursor: pointer;
+}
+
+#start_button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-green);
+    color: var(--color-light);
+    cursor: pointer;
+}
+
+#stop_button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-red);
+    color: var(--color-light);
+    cursor: pointer;
+}
+
+#load_button:active {
+    opacity: 0.75;
+}
+
+#start_button:active {
+    opacity: 0.75;
+}
+
+#stop_button:active {
+    opacity: 0.75;
+}
+
+#serial_connect_button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 16px;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-light);
+    color: var(--color-accent);
+    cursor: pointer;
+}
+
+#info_button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 16px;
+    /* round button */
+    padding: 8px;
+    border: none;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    background: var(--color-light);
+    color: var(--color-accent);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#array_input_field {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid var(--color-accent);
+    border-radius: 8px;
+    background: none;
+    color: var(--color-light);
+}
+
+#myPlot {
+    width: 100%;
+}
