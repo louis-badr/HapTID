@@ -62,7 +62,7 @@ void IRAM_ATTR onTimer()
 void setup()
 {
   Serial.begin(115200);
-  Serial.setTimeout(10);
+  Serial.setTimeout(1);
   // Serial.print("APB Freq = ");
   // Serial.print(getApbFrequency());
   // Serial.println(" Hz");

@@ -58,7 +58,7 @@ async function sendArrayToMCU() {
         if (port && data_array.length > 0) {
             for (let i = 0; i < data_array.length; i++) {
                 await sendToMCU(data_array[i].toString());
-                await new Promise(resolve => setTimeout(resolve, 10)); // Wait for a short time between sending each value
+                await new Promise(resolve => setTimeout(resolve, 5)); // Wait for a short time between sending each value
             }
         } else {
             console.log("Port not open or data array is empty");
