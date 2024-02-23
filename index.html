@@ -8,12 +8,34 @@
         <meta name="author" content="Louis Badr">
         <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="./css/style.css">
     </head>
     <body>
+        <div id="info_popup">
+            <button id="info_close_button" onclick="document.getElementById('info_popup').style.display='none'"><span class="material-icons">close</span></button>
+            <h2>How to set up your device</h2>
+            <ol>
+                <li>Connect a vibration motor or speaker on each of the 6 ports of the HapTID device</li>
+                <li>Plug the HapTID device into a power source (power bank or wall outlet) via USB-C (5V, min 2A) - A red LED will light up</li>
+                <li>Connect your PC to the HapTID device via micro-USB</li>
+                <li>Press the power button of the HapTID device - A green LED will light up and you should feel a click on each output</li>
+                <li>If the dashboard firmware isn't installed on your device, you can download it here and flash it using the Arduino IDE</li>
+            </ol>
+            <br>
+            <h2>How to use the dashboard</h2>
+            <ol>
+                <li>Click on the CONNECT button at the top left of the dashboard and select the COM port of the HapTID device (only works on Chrome, Edge, and Opera)</li>
+                <li>Select a signal type or paste your own signal (13-bit, 8kHz) in the text area of the CUSTOM tab and adjust the parameters with the sliders</li>
+                <li>Click on a number to select the motor you want to send the signal to</li>
+                <li>Click on the LOAD button to send the signal to the HapTID device and wait for the graph to update (it may take a moment)</li>
+                <li>Click on the START button to start the signal playback, it will play in a loop until you click on the STOP button</li>
+                <li>If there is any issue with the signals, press the power button of the HapTID device to turn it off and on again, reload the page and press the CONNECT button again</li>
+            </ol>
+        </div>
         <div class="dashboard__container">
             <button id="serial_connect_button" onclick="listSerial()">CONNECT</button>
-            <button id="info_button"><b>i</b></button>
+            <button id="info_button" onclick="document.getElementById('info_popup').style.display='block'"><span class="material-icons">question_mark</span></button>
             <h1> HapTID Demo Dashboard</h1>
             <div class="dashboard__header__buttons">
                 <button class="tablink active" onclick="openTab(event, 'sine')">SINE</button>

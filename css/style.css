@@ -39,6 +39,16 @@ h1 {
     padding: 16px;
 }
 
+h2 {
+    font-size: 1.5rem;
+    color: var(--color-light);
+}
+
+h3 {
+    font-size: 1.3rem;
+    color: var(--color-accent);
+}
+
 button {
     font-weight: 700;
     font-size: 0.9rem;
@@ -266,4 +276,44 @@ button {
 
 #myPlot {
     width: 100%;
+}
+
+#info_popup {
+    display: none;
+    /* center of the screen */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--color-dark);
+    color: var(--color-light);
+    width: clamp(500px, 60vw, 1200px);
+    max-height: 90%;
+    border: 2px solid var(--color-accent);
+    border-radius: 16px;
+    z-index: 100;
+    padding: 16px 32px;
+    overflow-y: auto;   
+}
+
+ol li {
+    list-style: decimal;
+    list-style-position: inside;
+}
+
+#info_close_button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 8px;
+    /* round button */
+    padding: 8px;
+    border: none;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    background: none;
+    color: var(--color-accent);
+    cursor: pointer;
+    font-size: 1rem;
 }
