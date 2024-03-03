@@ -1,7 +1,11 @@
+from datetime import datetime
+
+import calibration_ascending
 import constants
 import json
 import menu
 import numpy as np
+import os
 import pygame
 import random
 import serial
@@ -9,7 +13,7 @@ import sys
 import UI
 
 
-class Calibration:
+class Calibration_descending:
     def __init__(self):
         # arduino things
         self.ser_haptid = serial.Serial(constants.com_port_haptid, 115200, timeout=.1)
@@ -18,7 +22,7 @@ class Calibration:
         self.ser_haptid.open()    
         # initialize variables
         self.vib_lvl = constants.max_vib_lvl
-        self.step = constants.starting_step
+        self.step = constants.descending_starting_step
         self.vib_lvl_history = []
         self.changing_points = []
         self.answers_history = []
@@ -32,13 +36,15 @@ class Calibration:
         self.clock = pygame.time.Clock()
         
     def run(self):
-
-        # self.screen.fill('black')
-        # UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
-        # UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
-        # pygame.display.update()
-        # pygame.time.wait(2000)
-    
+        
+        #! vibrate here at max_vib_lvl (we send max_vib_lvl)
+        print(f'{int(self.vib_lvl)}')
+        self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000)}'.encode())
+        pygame.time.wait(2000)
+        #! stop vibration (send 0)
+        self.ser_haptid.write('0'.encode())
+        pygame.time.wait(500)
+        print('calibration descending')
         running = True
         while running:
 
@@ -62,35 +68,42 @@ class Calibration:
                     if yes_button.collidepoint(event.pos) or no_button.collidepoint(event.pos):
                         # ends when the maximum number of trials has been reached
                         if len(self.vib_lvl_history) >= constants.nb_trials:
-                            threshold_value = np.mean(self.changing_points[-3:])
+                            threshold_value = np.mean(self.changing_points[-3:])    # mean of the last 3 changing points
                             constants.wrist_threshold = threshold_value
                             # save the calibration data
                             data = {
                                 "Participant ID": constants.id,
-                                "Wrist threshold value": threshold_value,
-                                "Vibration level history": self.vib_lvl_history,
-                                "Level changing points": self.changing_points,
-                                "Participant answers history": self.answers_history
+                                "Date": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                "Descending wrist threshold value": threshold_value,
+                                "Descending vibration level history": self.vib_lvl_history,
+                                "Descending level changing points": self.changing_points,
+                                "Descending participant answers history": self.answers_history
                             }
                             json_object = json.dumps(data, indent=4)
-                            with open(f'./P{constants.id}/P{constants.id}-calibration.json', "w") as outfile:
-                                outfile.write(json_object)
-                            # go back to the menu
+                            file_path = f'./P{constants.id}/P{constants.id}-calibration.jsonl'
+                            with open(file_path, "a") as outfile:
+                                outfile.write(json_object + '\n')
+                            # go to the ascending calibration
                             self.ser_haptid.close()
-                            menu_screen = menu.Menu()
-                            menu_screen.run()
+                            calibration_ascending.Calibration_ascending().run()
+
+
+                        
                         self.screen.fill('black')
                         menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
                         UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
                         pygame.display.update()
                         pygame.time.wait(random.randint(1000, 4000))
                         #! vibrate here at max_vib_lvl (we send max_vib_lvl)
-                        print(f'{int(self.vib_lvl)}')
+                        print(self.vib_lvl)
                         self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000)}'.encode())
                         pygame.time.wait(2000)
                         #! stop vibration (send 0)
                         self.ser_haptid.write('0'.encode())
                         pygame.time.wait(500)
+
+
+
                         if yes_button.collidepoint(event.pos):
                             if len(self.answers_history) == 0 or self.answers_history[-1] == 'y':
                                 self.vib_lvl_history.append(self.vib_lvl)

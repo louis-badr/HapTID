@@ -1,4 +1,4 @@
-import calibration
+import calibration_descending
 import csv
 import choice_reaction_time
 import force_control
@@ -20,9 +20,20 @@ class Menu:
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
         self.show_exercices_button = False
-        if os.path.exists(f'./P{constants.id}/P{constants.id}-calibration.json'):
-            data = json.load(open(f'./P{constants.id}/P{constants.id}-calibration.json'))
-            constants.wrist_threshold = data['Wrist threshold value']
+        jsonl_file = f'./P{constants.id}/P{constants.id}-calibration.jsonl'
+        if os.path.exists(jsonl_file):
+            # data = json.load(open(jsonl_file))
+            # with open(jsonl_file, 'r') as file:
+            #     for line in file:
+            #         line = line.strip()  # Remove leading/trailing whitespace
+            #         if line:
+            #             try:
+            #                 data = json.loads(line)
+            #                 if "Wrist threshold value" in data:
+            #                     constants.wrist_threshold = int(data["Wrist threshold value"])
+            #             except json.JSONDecodeError:
+            #                 # Skip lines that don't contain valid JSON
+            #                 continue
             self.show_exercices_button = True
 
     def run(self):
@@ -38,7 +49,7 @@ class Menu:
                         sys.exit()
                     if calib_button.collidepoint(event.pos):
                         running = False
-                        calibration.Calibration().run()
+                        calibration_descending.Calibration_descending().run()
                     if self.show_exercices_button:
                         if exercices_button.collidepoint(event.pos):
                             running = False

@@ -1,50 +1,20 @@
-import matplotlib.pyplot as plt
-import numpy as np
+import json
 
-mean = 2.5046687773333325
-vibration_history = [
-        50,
-        30,
-        10,
-        0,
-        0,
-        14.0,
-        4.200000000000001,
-        0,
-        0,
-        6.8599999999999985,
-        13.719999999999997,
-        8.918,
-        4.1160000000000005,
-        0,
-        0,
-        3.361399999999999,
-        6.722799999999998,
-        4.369819999999999,
-        2.0168399999999997,
-        0,
-        1.6470859999999994,
-        3.2941719999999988,
-        4.941257999999998,
-        3.7882977999999983,
-        2.635337599999999,
-        1.4823773999999994,
-        2.289449539999999,
-        3.0965216799999986,
-        3.9035938199999984,
-        4.710665959999998,
-        4.145715461999998,
-        3.5807649639999988,
-        3.0158144659999992,
-        2.4508639679999997,
-        1.8859134700000002,
-        1.3209629720000007,
-        1.7164283206000004,
-        2.1118936692,
-        2.5073590178,
-        2.9028243663999995
-]
+# Read the JSONL file
+def get_last_wrist_threshold(jsonl_file):
+        last_wrist_threshold = None
+        with open(jsonl_file, 'r') as f:
+                for line in f:
+                        data = json.loads(line.strip())
+                        if "Wrist threshold value" in data:
+                                last_wrist_threshold = data["Wrist threshold value"]
+        return last_wrist_threshold
 
-plt.plot(vibration_history)
-plt.axhline(y=mean, color='r', linestyle='-')
-plt.show()
+# Provide the path to your JSONL file
+jsonl_file = "./P0/P0-calibration.json"
+last_wrist_threshold = get_last_wrist_threshold(jsonl_file)
+
+if last_wrist_threshold is not None:
+        print("Last Wrist threshold value:", last_wrist_threshold)
+else:
+        print("No Wrist threshold value found in the file.")

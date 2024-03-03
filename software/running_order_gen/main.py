@@ -1,78 +1,268 @@
 import csv
 import itertools
+import numpy as np
 import random
 
-#* Generation parameters
+nb_participants = 3
+nb_repetitions_crt = 5
+final_array = []
 
-# number of participants
-nb_participants = 1
-# number of trials per condition for the Choice Reaction Time (CRT) task
-nb_trials_crt = 5
-# number of trials per condition for the Force Control (FC) task
-nb_trials_fc = 0
+def print_clearly(list):
+    for elem in list:
+        # print with tabs between elements
+        print(*elem, sep='\t')
 
-#* Task parameters
-
-# CRT task parameters
-crt_param = [
-    # finger to press with
-    ['thumb','index','middle','ring','little'],
-    # warning signal type
-    ['none', 'visual', 'tactile'],
-    # imperative signal type
-    ['visual', 'tactile'],
+#* CRT task parameters for each sub-unit
+crt_sub_units_params = [
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['none'],
+        # imperative signal type
+        ['visual'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['none'],
+        # imperative signal type
+        ['tactile-click'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['none'],
+        # imperative signal type
+        ['tactile-vibration'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['visual'],
+        # imperative signal type
+        ['visual'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['visual'],
+        # imperative signal type
+        ['tactile-click'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['visual'],
+        # imperative signal type
+        ['tactile-vibration'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['tactile-click'],
+        # imperative signal type
+        ['visual'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['tactile-click'],
+        # imperative signal type
+        ['tactile-click'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # finger to press with
+        ['thumb','index','middle','ring','little'],
+        # warning signal type
+        ['tactile-click'],
+        # imperative signal type
+        ['tactile-vibration'],
+    ],
 ]
 
-# FC task parameters
-fc_param = [
-    # force target (N)
-    ['4','6','8'],
-    # target indicator type
-    ['visual', 'tactile'],
+#* Combine all sub-units parameters to create all possible CRT tasks
+crt_sub_units = []  # list of all possible CRT tasks by sub-unit
+for sub_unit_params in crt_sub_units_params:
+    crt_sub_unit = list(itertools.product(*sub_unit_params))
+    # repeat the list of combinations to have enough trials
+    crt_sub_unit = crt_sub_unit * nb_repetitions_crt
+    crt_sub_units.append(crt_sub_unit)
+
+#* FC task parameters for each sub-unit
+fc_sub_units_params = [
+    [
+        # stochastic vibrations
+        ['off'],
+        # force target (N)
+        ['4','6','8'],
+        # target indicator type
+        ['visual'],
+    ],
+    [
+        # stochastic vibrations
+        ['off'],
+        # force target (N)
+        ['4','6','8'],
+        # target indicator type
+        ['tactile'],
+    ],
 ]
 
-#* List all tasks
+#* Combine all sub-units parameters to create all possible FC tasks
+fc_sub_units = []  # list of all possible FC tasks by sub-unit
+for sub_unit_params in fc_sub_units_params:
+    fc_sub_unit = list(itertools.product(*sub_unit_params))
+    # repeat the list of combinations to have enough trials
+    fc_sub_unit = fc_sub_unit * nb_repetitions_crt
+    fc_sub_units.append(fc_sub_unit)
 
-# CRT task
-# create all possible combinations of CRT task parameters
-crt_tasks = list(itertools.product(*crt_param))
-# repeat the list of combinations to have enough trials
-crt_tasks = crt_tasks * nb_trials_crt
+def generate_crt_tasks(no_participants):
+    #* Unit 1
+    crt_unit_1 = crt_sub_units
+    # shuffle each sub-unit
+    for sub_unit in crt_unit_1:
+        random.shuffle(sub_unit)
+    # shuffle the order of sub-units
+    random.shuffle(crt_unit_1)
+    # concatenate the sub-units
+    crt_unit_1 = list(itertools.chain(*crt_unit_1))
+    # convert tuples to lists
+    crt_unit_1 = [list(elem) for elem in crt_unit_1]
 
-# FC task
-# create all possible combinations of FFC task parameters
-fc_tasks = list(itertools.product(*fc_param))
-# repeat the list of combinations to have enough trials
-fc_tasks = fc_tasks * nb_trials_fc
+    #* Unit 2
+    crt_unit_2 = crt_sub_units
+    # shuffle each sub-unit
+    for sub_unit in crt_unit_2:
+        random.shuffle(sub_unit)
+    # shuffle the order of sub-units
+    random.shuffle(crt_unit_2)
+    # concatenate the sub-units
+    crt_unit_2 = list(itertools.chain(*crt_unit_2))
+    # convert tuples to lists
+    crt_unit_2 = [list(elem) for elem in crt_unit_2]
+    # replace 'off' by 'on' for stochastic vibrations
+    for task in crt_unit_2:
+        task[0] = 'on'
 
-#* Write the CSV file
+    #* Unit 3
+    crt_unit_3 = crt_sub_units
+    # shuffle each sub-unit
+    for sub_unit in crt_unit_3:
+        random.shuffle(sub_unit)
+    # shuffle the order of sub-units
+    random.shuffle(crt_unit_3)
+    # concatenate the sub-units
+    crt_unit_3 = list(itertools.chain(*crt_unit_3))
+    # convert tuples to lists
+    crt_unit_3 = [list(elem) for elem in crt_unit_3]
 
-task_nb = 1
+    #* Assemble
+    crt_tasks = crt_unit_1 + crt_unit_2 + crt_unit_3
+    # add the task number, type and participant number
+    for i, task in enumerate(crt_tasks):
+        task.insert(0, i+1)
+        task.insert(0, 'CRT')
+        task.insert(0, no_participants)
+    # add a break every 25 trials without using numpy
+    for i in range(25, len(crt_tasks), 26):
+        crt_tasks.insert(i, ['break']*len(crt_tasks[0]))
+    return crt_tasks
+
+def generate_fc_tasks(no_participants):
+    #* Unit 1
+    fc_unit_1 = fc_sub_units
+    # shuffle each sub-unit
+    for sub_unit in fc_unit_1:
+        random.shuffle(sub_unit)
+    # shuffle the order of sub-units
+    random.shuffle(fc_unit_1)
+    # concatenate the sub-units
+    fc_unit_1 = list(itertools.chain(*fc_unit_1))
+    # convert tuples to lists
+    fc_unit_1 = [list(elem) for elem in fc_unit_1]
+    #* Unit 2
+    fc_unit_2 = fc_sub_units
+    # shuffle each sub-unit
+    for sub_unit in fc_unit_2:
+        random.shuffle(sub_unit)
+    # shuffle the order of sub-units
+    random.shuffle(fc_unit_2)
+    # concatenate the sub-units         
+    fc_unit_2 = list(itertools.chain(*fc_unit_2))
+    # convert tuples to lists
+    fc_unit_2 = [list(elem) for elem in fc_unit_2]
+    # replace 'off' by 'on' for stochastic vibrations
+    for task in fc_unit_2:
+        task[0] = 'on'
+    #* Unit 3
+    fc_unit_3 = fc_sub_units
+    # shuffle each sub-unit
+    for sub_unit in fc_unit_3:
+        random.shuffle(sub_unit)
+    # shuffle the order of sub-units
+    random.shuffle(fc_unit_3)
+    # concatenate the sub-units
+    fc_unit_3 = list(itertools.chain(*fc_unit_3))
+    # convert tuples to lists
+    fc_unit_3 = [list(elem) for elem in fc_unit_3]
+    #* Assemble
+    fc_tasks = fc_unit_1 + fc_unit_2 + fc_unit_3
+    # add the task number, type and participant number
+    for i, task in enumerate(fc_tasks):
+        task.insert(0, i+1)
+        task.insert(0, 'FC')
+        task.insert(0, no_participants)
+    # add a break every trial without using numpy
+    for i in range(1, len(fc_tasks)*2, 2):
+        fc_tasks.insert(i, ['break']*len(fc_tasks[0]))
+    return fc_tasks
+
+
+for paricipant in range(nb_participants):
+    # generate a random number, 0 or 1
+    rand = random.randint(0,1)
+    if rand == 0:
+        final_array += generate_crt_tasks(paricipant+1)
+        final_array += generate_fc_tasks(paricipant+1)
+    else:
+        final_array += generate_fc_tasks(paricipant+1)
+        final_array += generate_crt_tasks(paricipant+1)
+
+#* Print
+print_clearly(final_array)
+
+#* Write to csv
 
 with open(f'running_order_table.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
     # write the header
-    writer.writerow(['Participant #', 'Task #', 'Task type', 'Wrist vibration', 'Param 1', 'Param 2', 'Param 3'])
-    # for each participant
-    for i in range(nb_participants):
-        # randomize the order of the series of tasks
-        series = random.sample(['CRT', 'FC'], 2)
-        series *= 2
-        # for each series
-        for j in range(len(series)):
-            # randomize the order of the corresponding tasks
-            if series[j] == 'CRT':
-                tasks = random.sample(crt_tasks, len(crt_tasks))
-            if series[j] == 'FC':
-                tasks = random.sample(fc_tasks, len(fc_tasks))
-            # write the tasks in the CSV file
-            if j <= 1:
-                # wrist noise vibration off
-                for k in range(len(tasks)):
-                    writer.writerow([i+1, task_nb, series[j], 'off'] + list(tasks[k]))
-                    task_nb += 1
-            if j > 1:
-                # wrist noise vibration on
-                for k in range(len(tasks)):
-                    writer.writerow([i+1, task_nb, series[j], 'on'] + list(tasks[k]))
-                    task_nb += 1
+    writer.writerow(['Participant #', 'Exercise', 'Task #', 'Wrist vibration', 'Param 1', 'Param 2', 'Param 3'])
+    # write the tasks in the CSV file
+    for task in final_array:
+        writer.writerow(task)

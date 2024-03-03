@@ -14,12 +14,13 @@ com_port_keyboard = None
 baud_rate = 115200
 
 # Calibration
-max_vib_lvl = 50   # in %
+max_vib_lvl = 20   # in %
 nb_trials = 40
-starting_step = 20  # in %
-coeff = 0.7
+descending_starting_step = 5   # in %
+ascending_starting_step = 0.25   # in %
+coeff = 0.5
 
-sr_coeff = 0.6
+sr_coeff = 0.8
 
 # Tasks tracking
 tasks = []

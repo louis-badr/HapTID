@@ -68,6 +68,33 @@ class CRT:
         while True:
             # on récupère les infos de la prochaine tâche
             next_task = constants.tasks[0]
+            # si c'est une pause on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
+            if next_task[0] == 'break':
+                running = True
+                while running:
+                    self.screen.fill('black')
+                    menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
+                    UI.draw_text('Appuyez sur espace pour continuer', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
+                    pygame.display.update()
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.ser_mega.close()
+                            self.ser_haptid.close()
+                            pygame.quit()
+                            sys.exit()
+                        if event.type==pygame.MOUSEBUTTONDOWN:
+                            if menu_button.collidepoint(event.pos):
+                                self.ser_mega.close()
+                                self.ser_haptid.close()
+                                menu_screen = menu.Menu()
+                                menu_screen.run()
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_SPACE:
+                                running = False
+                    self.clock.tick(constants.framerate)
+                # on ajoute l'exercice à la liste des exercices faits
+                constants.completed_crt_tasks.append(constants.tasks.pop(0))
+                next_task = constants.tasks[0]
             # si la prochaine tâche n'est pas un CRT on retourne au menu
             if next_task[1] != 'CRT':
                 self.ser_mega.close()
@@ -92,29 +119,6 @@ class CRT:
                     finger = 4
                 case other:
                     finger = 0
-            # on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
-            running = True
-            while running:
-                self.screen.fill('black')
-                menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
-                UI.draw_text('Appuyez sur espace pour continuer', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
-                pygame.display.update()
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.ser_mega.close()
-                        self.ser_haptid.close()
-                        pygame.quit()
-                        sys.exit()
-                    if event.type==pygame.MOUSEBUTTONDOWN:
-                        if menu_button.collidepoint(event.pos):
-                            self.ser_mega.close()
-                            self.ser_haptid.close()
-                            menu_screen = menu.Menu()
-                            menu_screen.run()
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
-                            running = False
-                self.clock.tick(constants.framerate)
             # on lance la vibration du poignet si nécessaire
             if wrist_vibration:
                 #! vibrate here
@@ -124,6 +128,9 @@ class CRT:
             # on affiche la main puis on attend un temps aléatoire
             self.screen.fill('black')
             self.screen.blit(self.hand_img, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
+            # draw a little cross in the middle of the screen
+            pygame.draw.line(self.screen, 'white', (self.screen_w/2-10, self.screen_h/2), (self.screen_w/2+10, self.screen_h/2), 5)
+            pygame.draw.line(self.screen, 'white', (self.screen_w/2, self.screen_h/2-10), (self.screen_w/2, self.screen_h/2+10), 5)
             pygame.display.update()
             pygame.time.wait(random.randint(3000, 8000))
             # on lance le warning signal
@@ -148,7 +155,7 @@ class CRT:
             elif is_type == 'tactile':
                 print('IS Type : Tactile')
                 #! vibrate here
-                self.ser_haptid.write(str(-finger-2).encode())
+                self.ser_haptid.write(str(finger-2).encode())
 
 
             # on demande au mega de lancer la fonction de record

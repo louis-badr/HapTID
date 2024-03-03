@@ -12,12 +12,11 @@ HapTID is a study on how vibrotactile stimulation can improve manual dexterity i
     - Electronic schematics and PCB design files
 
 - Software :
-    - A GUI to test motors via I2S
-    - A GUI for the study on healthy subjects
+    - A pygame program for the study on healthy subjects
     - A script to generate the running order of the tasks and parameters for the study
-    - A tool to convert .wav files into playable .h files for the device
 
 - Firmware :
-    - An Arduino sketch for the GUI to test motors via I2S
-    - An Arduino sketch for the study on healthy subjects
+    - Arduino sketches for the study on healthy subjects
     - Arduino sketches to test motor vibrations using an accelerometer
+
+You can also find a web interface to test the device at [https://louis-badr.fr/HapTID/](https://louis-badr.fr/HapTID/) and its source code in the `web_app` branch.

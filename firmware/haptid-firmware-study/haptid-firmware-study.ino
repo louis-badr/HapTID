@@ -1,28 +1,36 @@
 #include <Arduino.h>
 #include "whitenoise.h"
-#include "sample.h"
-#include "tone150.h"
+// #include "sample.h"
+// #include "tone150.h"
 // #include "ring.h"
 
 
 const int pwmRes = 12;
 const int sampleRate = 16000;
+const int clickDuration = 7;  // length of the click in ms
+const int sineClickDuration = 50; // length of the sine click in ms
 
 const int shdnPins[3] = {22, 19, 4};  // keep pin on HIGH to run the amp - each amp controls two motors
 const int motorPins[6] = {32, 33, 25, 26, 27, 12};  // in order from left to right
 
 const int pwmMax = pow(2, pwmRes) - 1;
 const int pwmFreq = (8 * pow(10, 7)) / pow(2, pwmRes);  // 80 MHz / 2^12 = 19531.25 Hz > sampleRate
+
 int arrayPosition = 0;  // position in the array being played
 int arrayLength = 0;  // length of the array being played
-hw_timer_t * timer = NULL; // we only need one timer for this program
+int sineClickArrayPosition = 0;  // position for the sine click - the length of the array is fixed
+
+hw_timer_t * timer = NULL;  // we only need one timer since the sample rate is the same for all sounds
+
 int receivedValue = 0;  // value received from the serial port
 int soundValue = 0;
 int clickValue;
+int sineClickOutput = -1;
+int sineClickVolume;
 unsigned long clickTimer = 0;
 
-// Debugging functions
-void printArray(int arr[], int size) {
+// Debugging function to print an array
+void printArray(uint16_t arr[], int size) {
   for (int i = 0; i < size; i++) {
     Serial.print(arr[i]);
     Serial.print(" ");
@@ -44,10 +52,12 @@ uint16_t* generateSineTable(int frequency, int sampleRate)
 
 int sineTable150Length = sampleRate / 150;
 int sineTable190Length = sampleRate / 190;
-uint16_t* sineTable150 = generateSineTable(150, sampleRate); // 150 Hz sine wave fo the motor on the index finger
-uint16_t* sineTable190 = generateSineTable(190, sampleRate); // 190 Hz sine wave fo the motor on the index finger
+int sineTable250Length = sampleRate / 250;
+uint16_t* sineTable150 = generateSineTable(150, sampleRate); // 150 Hz sine wave for the motor on the index finger
+uint16_t* sineTable190 = generateSineTable(190, sampleRate); // 190 Hz sine wave for the motor on the index finger
+uint16_t* sineTable250 = generateSineTable(250, sampleRate); // 250 Hz sine wave for the sine click
 
-
+// Interrupt function to play the noise and the sine waves
 void IRAM_ATTR onTimer()
 {
   if (soundValue > 0)
@@ -69,6 +79,9 @@ void IRAM_ATTR onTimer()
       } else if (soundValue <= 500000)
       {
         ledcWrite(4, sineTable190[arrayPosition] * (soundValue - 400000) / 100000);
+      } else if (soundValue <= 600000)
+      {
+        ledcWrite(4, sineTable190[arrayPosition] * (soundValue - 500000) / 100000);
       }
       arrayPosition++;
     } else
@@ -76,8 +89,18 @@ void IRAM_ATTR onTimer()
       arrayPosition = 0;
     }
   }
+  if (sineClickVolume > 0)
+  {
+    if (sineClickArrayPosition < sineTable250Length)
+    {
+      ledcWrite(sineClickOutput, sineTable250[sineClickArrayPosition] * sineClickVolume / 100000.0);
+      sineClickArrayPosition++;
+    } else
+    {
+      sineClickArrayPosition = 0;
+    }
+  }
 }
-
 
 void playStartSequence()
 {
@@ -113,7 +136,7 @@ void setup()
   {
     pinMode(shdnPins[i], OUTPUT);
     digitalWrite(shdnPins[i], HIGH);
-  }
+  } 
   // init motor pins
   for (int i = 0; i <= 5; i++)
   {
@@ -125,7 +148,8 @@ void setup()
   timerAttachInterrupt(timer, &onTimer, true);
   timerAlarmWrite(timer, 1000000 / sampleRate, true);  // nombre de us (1 000 000 us = 1s pour rappel)
   timerAlarmEnable(timer);
-  delay(3000);
+  
+  delay(2000);
   playStartSequence();
 }
 
@@ -135,22 +159,27 @@ void loop()
   {
     receivedValue = Serial.parseInt();
     // Serial.println(receivedValue);
-    // -1 to -7 are clicks
+    // -1 to -7 are clicks, -700001 to -1300000 are sine clicks
     if (receivedValue < 0)
     {
-      clickValue = abs(receivedValue) - 1;
-      // Serial.println(clickValue);
-      // if no motor is clicking
-      if (clickValue != 6)
-      {
-        ledcWrite(clickValue, 0);
-        ledcWrite(clickValue, pwmMax);
+      if (receivedValue < -7){
+        sineClickOutput = -receivedValue/100000 - 7;
+        sineClickVolume = -receivedValue % 100000;
+        sineClickArrayPosition = 0;
       } else
       {
-        for (int i = 1; i <= 5; i++)
+        clickValue = abs(receivedValue) - 1;
+        if (clickValue != 6)
         {
-          ledcWrite(i, 0);
-          ledcWrite(i, pwmMax);
+          ledcWrite(clickValue, 0);
+          ledcWrite(clickValue, pwmMax);
+        } else
+        {
+          for (int i = 1; i <= 5; i++)
+          {
+            ledcWrite(i, 0);
+            ledcWrite(i, pwmMax);
+          }
         }
       }
       // set the click time
@@ -176,8 +205,8 @@ void loop()
   // if the motor is clicking
   if (clickValue != 0)
   {
-    // if more than 10 ms have passed since the click
-    if (millis() - clickTimer > 7)
+    // if more than X ms have passed since the click
+    if (millis() - clickTimer >= clickDuration)
     {
       // turn off the motor
       if (clickValue != 6)
@@ -192,6 +221,18 @@ void loop()
       }
       // set the motor to not clicking
       clickValue = 0;
+    }
+  }
+  // if the motor is sine clicking
+  if (sineClickOutput != -1)
+  {
+    if (millis() - clickTimer >= sineClickDuration)
+    {
+      // turn off the motor
+      ledcWrite(sineClickOutput, 0);
+      // set the motor to not clicking
+      sineClickOutput = -1;
+      sineClickVolume = 0;
     }
   }
 }
