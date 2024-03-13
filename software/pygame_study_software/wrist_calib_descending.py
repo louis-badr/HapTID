@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import calibration_ascending
 import constants
 import json
 import menu
@@ -11,6 +10,7 @@ import random
 import serial
 import sys
 import UI
+import wrist_calib_ascending
 
 
 class Calibration_descending:
@@ -21,14 +21,14 @@ class Calibration_descending:
         self.ser_haptid.close()
         self.ser_haptid.open()    
         # initialize variables
-        self.vib_lvl = constants.max_vib_lvl
-        self.step = constants.descending_starting_step
+        self.vib_lvl = constants.wrist_max_vib_lvl
+        self.step = constants.wrist_descending_starting_step
         self.vib_lvl_history = []
         self.changing_points = []
         self.answers_history = []
 
         # pygame things
-        pygame.display.set_caption("Calibration - HapTID")
+        pygame.display.set_caption("Wrist calibration - HapTID")
         self.screen = pygame.display.get_surface()
         self.screen_w = pygame.display.Info().current_w
         self.screen_h = pygame.display.Info().current_h
@@ -37,7 +37,7 @@ class Calibration_descending:
         
     def run(self):
         
-        #! vibrate here at max_vib_lvl (we send max_vib_lvl)
+        #! vibrate here at wrist_max_vib_lvl (we send wrist_max_vib_lvl)
         print(f'{int(self.vib_lvl)}')
         self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000)}'.encode())
         pygame.time.wait(2000)
@@ -67,7 +67,7 @@ class Calibration_descending:
                     # if the participant has answered yes or no
                     if yes_button.collidepoint(event.pos) or no_button.collidepoint(event.pos):
                         # ends when the maximum number of trials has been reached
-                        if len(self.vib_lvl_history) >= constants.nb_trials:
+                        if len(self.vib_lvl_history) >= constants.wrist_nb_trials:
                             threshold_value = np.mean(self.changing_points[-3:])    # mean of the last 3 changing points
                             constants.wrist_threshold = threshold_value
                             # save the calibration data
@@ -80,12 +80,12 @@ class Calibration_descending:
                                 "Descending participant answers history": self.answers_history
                             }
                             json_object = json.dumps(data, indent=4)
-                            file_path = f'./P{constants.id}/P{constants.id}-calibration.jsonl'
+                            file_path = f'./P{constants.id}/P{constants.id}-wrist-calib.jsonl'
                             with open(file_path, "a") as outfile:
                                 outfile.write(json_object + '\n')
                             # go to the ascending calibration
                             self.ser_haptid.close()
-                            calibration_ascending.Calibration_ascending().run()
+                            wrist_calib_ascending.Calibration_ascending().run()
 
 
                         
@@ -94,13 +94,13 @@ class Calibration_descending:
                         UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
                         pygame.display.update()
                         pygame.time.wait(random.randint(1000, 4000))
-                        #! vibrate here at max_vib_lvl (we send max_vib_lvl)
+                        #! vibrate here at wrist_max_vib_lvl (we send wrist_max_vib_lvl)
                         print(self.vib_lvl)
                         self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000)}'.encode())
-                        pygame.time.wait(2000)
+                        pygame.time.wait(random.randint(1000, 2500))
                         #! stop vibration (send 0)
                         self.ser_haptid.write('0'.encode())
-                        pygame.time.wait(500)
+                        pygame.time.wait(random.randint(500, 1000))
 
 
 
@@ -113,7 +113,7 @@ class Calibration_descending:
                                 self.vib_lvl_history.append(self.vib_lvl)
                                 self.answers_history.append('y')
                                 self.changing_points.append(self.vib_lvl)
-                                self.step *= constants.coeff
+                                self.step *= constants.wrist_coeff
                                 self.vib_lvl -= self.step
                             if self.vib_lvl < 0:
                                 self.vib_lvl = 0
@@ -126,10 +126,10 @@ class Calibration_descending:
                                 self.vib_lvl_history.append(self.vib_lvl)
                                 self.answers_history.append('n')
                                 self.changing_points.append(self.vib_lvl)
-                                self.step *= constants.coeff
+                                self.step *= constants.wrist_coeff
                                 self.vib_lvl += self.step
-                            if self.vib_lvl > constants.max_vib_lvl:
-                                self.vib_lvl = constants.max_vib_lvl
+                            if self.vib_lvl > constants.wrist_max_vib_lvl:
+                                self.vib_lvl = constants.wrist_max_vib_lvl
             
             pygame.display.update()
             self.clock.tick(constants.framerate)

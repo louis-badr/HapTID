@@ -3,7 +3,7 @@ id = None
 wrist_threshold = None
 dominant_hand = None
 finger_threshold = None
-wrist_threshold = None
+index_calib_done_trials = 0
 
 # Display
 framerate = 60
@@ -13,14 +13,21 @@ com_port_haptid = None
 com_port_keyboard = None
 baud_rate = 115200
 
-# Calibration
-max_vib_lvl = 20   # in %
-nb_trials = 40
-descending_starting_step = 5   # in %
-ascending_starting_step = 0.25   # in %
-coeff = 0.5
+# Wrist calibration
+wrist_max_vib_lvl = 30   # in %
+wrist_nb_trials = 40
+wrist_descending_starting_step = 5   # in %
+wrist_ascending_starting_step = 0.25   # in %
+wrist_coeff = 0.5
 
-sr_coeff = 0.8
+sr_coeff = 0.6
+
+# index calibration
+index_max_vib_lvl = 5   # in %
+index_nb_trials = 40
+index_descending_starting_step = 1   # in %
+index_ascending_starting_step = 0.015   # in %
+index_coeff = 0.5
 
 # Tasks tracking
 tasks = []

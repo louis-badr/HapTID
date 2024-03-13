@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import constants
+import index_calib_descending
 import json
 import menu
 import numpy as np
@@ -21,13 +22,13 @@ class Calibration_ascending:
         self.ser_haptid.open()    
         # initialize variables
         self.vib_lvl = 0
-        self.step = constants.ascending_starting_step
+        self.step = constants.index_ascending_starting_step
         self.vib_lvl_history = []
         self.changing_points = []
         self.answers_history = []
 
         # pygame things
-        pygame.display.set_caption("Calibration - HapTID")
+        pygame.display.set_caption("Index calibration - HapTID")
         self.screen = pygame.display.get_surface()
         self.screen_w = pygame.display.Info().current_w
         self.screen_h = pygame.display.Info().current_h
@@ -64,35 +65,53 @@ class Calibration_ascending:
                     # if the participant has answered yes or no
                     if yes_button.collidepoint(event.pos) or no_button.collidepoint(event.pos):
                         # ends when the maximum number of trials has been reached
-                        if len(self.vib_lvl_history) >= constants.nb_trials:
+                        if len(self.vib_lvl_history) >= constants.index_nb_trials:
                             threshold_value = np.mean(self.changing_points[-3:])    # mean of the last 3 changing points
-                            constants.wrist_threshold = (constants.wrist_threshold + threshold_value)/2
+                            constants.finger_threshold += threshold_value
                             # save the calibration data
                             data = {
                                 "Participant ID": constants.id,
                                 "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "Ascending wrist threshold value": threshold_value,
+                                "Trial": constants.index_calib_done_trials,
+                                "Ascending index threshold value": threshold_value,
                                 "Ascending vibration level history": self.vib_lvl_history,
                                 "Ascending level changing points": self.changing_points,
                                 "Ascending participant answers history": self.answers_history
                             }
                             json_object = json.dumps(data, indent=4)
-                            file_path = f'./P{constants.id}/P{constants.id}-calibration.jsonl'
+                            file_path = f'./P{constants.id}/P{constants.id}-index-calib.jsonl'
                             with open(file_path, "a") as outfile:
                                 outfile.write(json_object + '\n')
                             # save the threshold value
                             data = {
                                 "Participant ID": constants.id,
                                 "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "Wrist threshold value": constants.wrist_threshold
+                                "Trial": constants.index_calib_done_trials,
+                                "Index threshold value": constants.wrist_threshold
                             }
                             json_object = json.dumps(data, indent=4)
                             with open(file_path, "a") as outfile:
                                 outfile.write(json_object + '\n')
-                            # go back to the menu
-                            self.ser_haptid.close()
-                            menu_screen = menu.Menu()
-                            menu_screen.run()
+
+                            if constants.index_calib_done_trials == 3:
+                                constants.finger_threshold /= 3
+                                # save the threshold value
+                                data = {
+                                    "Participant ID": constants.id,
+                                    "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    "Mean index threshold value": constants.finger_threshold
+                                }
+                                json_object = json.dumps(data, indent=4)
+                                with open(file_path, "a") as outfile:
+                                    outfile.write(json_object + '\n')
+                                # go back to the menu
+                                self.ser_haptid.close()
+                                menu_screen = menu.Menu()
+                                menu_screen.run()
+                            else:
+                                # go to the descending calibration
+                                self.ser_haptid.close()
+                                index_calib_descending.Calibration_descending().run()
 
 
                         
@@ -100,14 +119,23 @@ class Calibration_ascending:
                         menu_button = UI.draw_button('Menu', self.font, 'white', self.screen, 75, 50)
                         UI.draw_text('Avez-vous senti une vibration ?', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
                         pygame.display.update()
+                        #! white noise if it is the second trial
+                        if constants.index_calib_done_trials == 2:
+                            noise_lvl = int(constants.wrist_threshold * constants.sr_coeff * 1000)
+                            self.ser_haptid.write(f'{int(noise_lvl)}'.encode())
+                            print(f'noise_lvl: {noise_lvl}')
                         pygame.time.wait(random.randint(1000, 4000))
-                        #! starting with no vibration this time (keep the delays to fake it)
+                        #! vibrate here
                         print(self.vib_lvl)
-                        self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000)}'.encode())
-                        pygame.time.wait(2000)
-                        
+                        if self.vib_lvl > 0:
+                            if constants.dominant_hand == "R":
+                                self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000 + 400000)}'.encode())
+                            else:
+                                self.ser_haptid.write(f'{int(float(self.vib_lvl) * 1000 + 300000)}'.encode())
+                        pygame.time.wait(random.randint(1000, 2500))
+                        #! stop vibration (send 0)
                         self.ser_haptid.write('0'.encode())
-                        pygame.time.wait(500)
+                        pygame.time.wait(random.randint(500, 1000))
 
 
 
@@ -123,7 +151,7 @@ class Calibration_ascending:
                                     self.vib_lvl_history.append(self.vib_lvl)
                                     self.answers_history.append('y')
                                     self.changing_points.append(self.vib_lvl)
-                                    self.step *= constants.coeff
+                                    self.step *= constants.index_coeff
                                     self.vib_lvl -= self.step
                                 if self.vib_lvl < 0:
                                     self.vib_lvl = 0
@@ -138,10 +166,10 @@ class Calibration_ascending:
                                 self.vib_lvl_history.append(self.vib_lvl)
                                 self.answers_history.append('n')
                                 self.changing_points.append(self.vib_lvl)
-                                self.step *= constants.coeff
+                                self.step *= constants.index_coeff
                                 self.vib_lvl += self.step
-                            if self.vib_lvl > constants.max_vib_lvl:
-                                self.vib_lvl = constants.max_vib_lvl
+                            if self.vib_lvl > constants.index_max_vib_lvl:
+                                self.vib_lvl = constants.index_max_vib_lvl
             
             pygame.display.update()
             self.clock.tick(constants.framerate)
