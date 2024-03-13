@@ -1,5 +1,5 @@
 import choice_reaction_time
-import constants
+import config
 import csv
 import force_control
 import index_calib_descending
@@ -35,26 +35,26 @@ class Menu:
                     if wrist_calib_button.collidepoint(event.pos):
                         running = False
                         wrist_calib_descending.Calibration_descending().run()
-                    if constants.wrist_threshold is not None and index_calib_button.collidepoint(event.pos):
+                    if config.wrist_threshold is not None and index_calib_button.collidepoint(event.pos):
                         running = False
                         index_calib_descending.Calibration_descending().run()
-                    if constants.wrist_threshold is not None and constants.finger_threshold is not None and exercices_button.collidepoint(event.pos):
+                    if config.wrist_threshold is not None and config.finger_threshold is not None and exercices_button.collidepoint(event.pos):
                         running = False
                         # check what the next task is
-                        if constants.tasks[0][1] == 'CRT':
+                        if config.tasks[0][1] == 'CRT':
                             choice_reaction_time.CRT().run()
-                        elif constants.tasks[0][1] == 'FC':
+                        elif config.tasks[0][1] == 'FC':
                             force_control.FC().run()
             
             self.screen.fill('black')
-            UI.draw_text(f'Participant #{constants.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)
+            UI.draw_text(f'Participant #{config.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)
             quit_button = UI.draw_button('Quit', self.font, 'red', self.screen, 75, 50)
             wrist_calib_button = UI.draw_button('Start wrist calibration', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2-100)
-            if constants.wrist_threshold is not None:
+            if config.wrist_threshold is not None:
                 index_calib_button = UI.draw_button('Start index calibration', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
-            if constants.wrist_threshold is not None and constants.finger_threshold is not None:
+            if config.wrist_threshold is not None and config.finger_threshold is not None:
                 exercices_button = UI.draw_button('Start exercices', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
                 UI.draw_text('Calibration complete !', self.font, 'green', self.screen, self.screen_w/2, self.screen_h/2+100)
 
             pygame.display.update()
-            self.clock.tick(constants.framerate)
+            self.clock.tick(config.framerate)

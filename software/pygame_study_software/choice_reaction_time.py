@@ -1,4 +1,4 @@
-import constants
+import config
 import csv
 import menu
 import os
@@ -13,8 +13,8 @@ import UI
 class CRT:
     def __init__(self):
         # arduino things
-        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=.1)
-        self.ser_haptid = serial.Serial(constants.com_port_haptid, 115200, timeout=.1)
+        self.ser_mega = serial.Serial(config.com_port_keyboard, 115200, timeout=.1)
+        self.ser_haptid = serial.Serial(config.com_port_haptid, 115200, timeout=.1)
         # dirty fix to make sure the arduino is ready to receive data
         self.ser_mega.close()
         self.ser_mega.open()
@@ -34,14 +34,14 @@ class CRT:
         self.circles_pos_y = [0.498, 0.19, 0.151, 0.189, 0.34]
 
         # set vibration intensity
-        self.wrist_vib_lvl = constants.wrist_threshold * constants.sr_coeff
+        self.wrist_vib_lvl = config.wrist_threshold * config.sr_coeff
 
         # load the hand image
         hand_img = pygame.image.load('assets/hand_drawing.png').convert_alpha()
 
         # we study the non-dominant hand, the image is of a left hand
         # we flip it as well as the circles if the participant is left-handed
-        if constants.dominant_hand == 'L':
+        if config.dominant_hand == 'L':
             hand_img = pygame.transform.flip(hand_img, True, False)
             self.circles_pos_x = [1-i for i in self.circles_pos_x]
 
@@ -51,7 +51,7 @@ class CRT:
         self.hand_img = pygame.transform.smoothscale(hand_img, (int(ratio*self.screen_h*0.8), int(self.screen_h*0.8)))
         
         # load the results or create the file if it doesn't exist
-        self.results_filepath = f'./P{constants.id}/P{constants.id}-crt-results.csv'
+        self.results_filepath = f'./P{config.id}/P{config.id}-crt-results.csv'
         if not os.path.exists(self.results_filepath):
             with open(self.results_filepath, 'w', newline='') as csv_file:
                 # write the header
@@ -61,13 +61,13 @@ class CRT:
             csv_reader = csv.reader(csv_file, delimiter=';')
             print(len(list(csv_reader)))
             if len(list(csv_reader)) > 1:
-                constants.completed_crt_tasks = list(csv_reader)[0]
-            print(constants.completed_crt_tasks)
+                config.completed_crt_tasks = list(csv_reader)[0]
+            print(config.completed_crt_tasks)
 
     def run(self):
         while True:
             # on récupère les infos de la prochaine tâche
-            next_task = constants.tasks[0]
+            next_task = config.tasks[0]
             # si c'est une pause on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
             if next_task[0] == 'break':
                 running = True
@@ -91,10 +91,10 @@ class CRT:
                         if event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_SPACE:
                                 running = False
-                    self.clock.tick(constants.framerate)
+                    self.clock.tick(config.framerate)
                 # on ajoute l'exercice à la liste des exercices faits
-                constants.completed_crt_tasks.append(constants.tasks.pop(0))
-                next_task = constants.tasks[0]
+                config.completed_crt_tasks.append(config.tasks.pop(0))
+                next_task = config.tasks[0]
             # si la prochaine tâche n'est pas un CRT on retourne au menu
             if next_task[1] != 'CRT':
                 self.ser_mega.close()
@@ -170,7 +170,7 @@ class CRT:
                     data = data.split(';')
                     # on fait correspondre le numéro du fsr au doigt
                     # si le participant est gaucher on inverse
-                    if constants.dominant_hand == 'L':
+                    if config.dominant_hand == 'L':
                         data[0] = 4 - data[0]
                     match data[0]:
                         case '0':
@@ -188,7 +188,7 @@ class CRT:
                     # save to csv here
                     with open(self.results_filepath, 'a', newline='') as csv_file:
                         csv_writer = csv.writer(csv_file, delimiter=';')
-                        csv_writer.writerow(constants.tasks[0]+[finger_pressed,data[1]])
+                        csv_writer.writerow(config.tasks[0]+[finger_pressed,data[1]])
                     running = False
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -196,11 +196,11 @@ class CRT:
                         self.ser_haptid.close()
                         pygame.quit()
                         sys.exit()
-                self.clock.tick(constants.framerate)
+                self.clock.tick(config.framerate)
             #! on arrête la vibration du poignet si nécessaire
             if wrist_vibration:
                 print('Stop wrist vibration')
                 self.ser_haptid.write(b'0')
             # on ajoute l'exercice à la liste des exercices faits
-            constants.completed_crt_tasks.append(constants.tasks.pop(0))
-            print(constants.completed_crt_tasks)
+            config.completed_crt_tasks.append(config.tasks.pop(0))
+            print(config.completed_crt_tasks)

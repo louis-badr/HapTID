@@ -1,6 +1,6 @@
 from readline import ReadLine
 
-import constants
+import config
 import csv
 import menu
 import os
@@ -13,7 +13,7 @@ import UI
 class FC:
     def __init__(self):
         # arduino things
-        self.ser_mega = serial.Serial(constants.com_port_keyboard, 115200, timeout=None)
+        self.ser_mega = serial.Serial(config.com_port_keyboard, 115200, timeout=None)
         # dirty fix to make sure the arduino is ready to receive data
         self.ser_mega.close()
         self.ser_mega.open()
@@ -28,7 +28,7 @@ class FC:
         self.clock = pygame.time.Clock()
 
         # load the results or create the file if it doesn't exist
-        self.results_filepath = f'./P{constants.id}/P{constants.id}-fc-results.csv'
+        self.results_filepath = f'./P{config.id}/P{config.id}-fc-results.csv'
         if not os.path.exists(self.results_filepath):
             with open(self.results_filepath, 'w', newline='') as csv_file:
                 # write the header
@@ -38,13 +38,13 @@ class FC:
             csv_reader = csv.reader(csv_file, delimiter=';')
             print(len(list(csv_reader)))
             if len(list(csv_reader)) > 1:
-                constants.completed_fc_tasks = list(csv_reader)[0]
-            print(constants.completed_fc_tasks)
+                config.completed_fc_tasks = list(csv_reader)[0]
+            print(config.completed_fc_tasks)
 
     def run(self):
         while True:
             # on récupère les infos de la prochaine tâche
-            next_task = constants.tasks[0]
+            next_task = config.tasks[0]
             # si la prochaine tâche n'est pas un FC on retourne au menu
             if next_task[1] != 'FC':
                 self.ser_mega.close()
@@ -52,7 +52,7 @@ class FC:
                 menu_screen.run()
             wrist_vibration = bool(next_task[2])
             force_target = int(next_task[3])
-            circle_size_coeff = constants.target_circle_size/force_target
+            circle_size_coeff = config.target_circle_size/force_target
 
             # on loop sur l'écran d'attente jusqu'à ce que l'utilisateur appuie sur espace
             running = True
@@ -74,7 +74,7 @@ class FC:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
                             running = False
-                self.clock.tick(constants.framerate)
+                self.clock.tick(config.framerate)
 
             # on lance la vibration du poignet si nécessaire
             if wrist_vibration:
@@ -84,7 +84,7 @@ class FC:
             pygame.display.update()
             pygame.time.wait(3000)
             circle_color = 'white'
-            circle_size = constants.target_circle_size
+            circle_size = config.target_circle_size
             # flush du port série
             self.ser_mega.reset_input_buffer()
             # on demande au mega de lancer la fonction de lecture
@@ -112,12 +112,12 @@ class FC:
                     # on adapte la taille du cercle en fonction de la force
                     circle_size = float(data) * circle_size_coeff
                     # le cercle devient rouge si la force est trop élevée, bleu si elle est trop faible et blanc sinon
-                    if circle_size > constants.target_circle_size + 2:
+                    if circle_size > config.target_circle_size + 2:
                         circle_color = 'red'
-                    elif circle_size < constants.target_circle_size - 2:
+                    elif circle_size < config.target_circle_size - 2:
                         circle_color = 'blue'
                     else:
                         circle_color = 'white'
                     pygame.draw.circle(self.screen, circle_color, (self.screen_w/2, self.screen_h/2), circle_size)
                     pygame.display.update()
-                self.clock.tick(constants.framerate)
+                self.clock.tick(config.framerate)

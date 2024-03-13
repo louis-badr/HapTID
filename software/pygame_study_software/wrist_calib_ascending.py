@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import constants
+import config
 import json
 import menu
 import numpy as np
@@ -15,13 +15,13 @@ import UI
 class Calibration_ascending:
     def __init__(self):
         # arduino things
-        self.ser_haptid = serial.Serial(constants.com_port_haptid, 115200, timeout=.1)
+        self.ser_haptid = serial.Serial(config.com_port_haptid, 115200, timeout=.1)
         # dirty fix to make sure the arduino is ready to receive data
         self.ser_haptid.close()
         self.ser_haptid.open()    
         # initialize variables
         self.vib_lvl = 0
-        self.step = constants.wrist_ascending_starting_step
+        self.step = config.wrist_ascending_starting_step
         self.vib_lvl_history = []
         self.changing_points = []
         self.answers_history = []
@@ -64,12 +64,12 @@ class Calibration_ascending:
                     # if the participant has answered yes or no
                     if yes_button.collidepoint(event.pos) or no_button.collidepoint(event.pos):
                         # ends when the maximum number of trials has been reached
-                        if len(self.vib_lvl_history) >= constants.wrist_nb_trials:
+                        if len(self.vib_lvl_history) >= config.wrist_nb_trials:
                             threshold_value = np.mean(self.changing_points[-3:])    # mean of the last 3 changing points
-                            constants.wrist_threshold = (constants.wrist_threshold + threshold_value)/2
+                            config.wrist_threshold = (config.wrist_threshold + threshold_value)/2
                             # save the calibration data
                             data = {
-                                "Participant ID": constants.id,
+                                "Participant ID": config.id,
                                 "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                 "Ascending wrist threshold value": threshold_value,
                                 "Ascending vibration level history": self.vib_lvl_history,
@@ -77,14 +77,14 @@ class Calibration_ascending:
                                 "Ascending participant answers history": self.answers_history
                             }
                             json_object = json.dumps(data, indent=4)
-                            file_path = f'./P{constants.id}/P{constants.id}-wrist-calib.jsonl'
+                            file_path = f'./P{config.id}/P{config.id}-wrist-calib.jsonl'
                             with open(file_path, "a") as outfile:
                                 outfile.write(json_object + '\n')
                             # save the threshold value
                             data = {
-                                "Participant ID": constants.id,
+                                "Participant ID": config.id,
                                 "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "Wrist threshold value": constants.wrist_threshold
+                                "Wrist threshold value": config.wrist_threshold
                             }
                             json_object = json.dumps(data, indent=4)
                             with open(file_path, "a") as outfile:
@@ -123,7 +123,7 @@ class Calibration_ascending:
                                     self.vib_lvl_history.append(self.vib_lvl)
                                     self.answers_history.append('y')
                                     self.changing_points.append(self.vib_lvl)
-                                    self.step *= constants.wrist_coeff
+                                    self.step *= config.wrist_coeff
                                     self.vib_lvl -= self.step
                                 if self.vib_lvl < 0:
                                     self.vib_lvl = 0
@@ -138,10 +138,10 @@ class Calibration_ascending:
                                 self.vib_lvl_history.append(self.vib_lvl)
                                 self.answers_history.append('n')
                                 self.changing_points.append(self.vib_lvl)
-                                self.step *= constants.wrist_coeff
+                                self.step *= config.wrist_coeff
                                 self.vib_lvl += self.step
-                            if self.vib_lvl > constants.wrist_max_vib_lvl:
-                                self.vib_lvl = constants.wrist_max_vib_lvl
+                            if self.vib_lvl > config.wrist_max_vib_lvl:
+                                self.vib_lvl = config.wrist_max_vib_lvl
             
             pygame.display.update()
-            self.clock.tick(constants.framerate)
+            self.clock.tick(config.framerate)
