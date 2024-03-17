@@ -1,30 +1,28 @@
 #include <Arduino.h>
 #include "whitenoise.h"
-// #include "sample.h"
-// #include "tone150.h"
-// #include "ring.h"
-
-
-const int pwmRes = 12;
-const int sampleRate = 16000;
-const int clickDuration = 7;  // length of the click in ms
-const int sineClickDuration = 50; // length of the sine click in ms
 
 const int shdnPins[3] = {22, 19, 4};  // keep pin on HIGH to run the amp - each amp controls two motors
 const int motorPins[6] = {32, 33, 25, 26, 27, 12};  // in order from left to right
 
+const int pwmRes = 12;
+const int sampleRate = 16000;
 const int pwmMax = pow(2, pwmRes) - 1;
 const int pwmFreq = (8 * pow(10, 7)) / pow(2, pwmRes);  // 80 MHz / 2^12 = 19531.25 Hz > sampleRate
 
-int arrayPosition = 0;  // position in the array being played
-int arrayLength = 0;  // length of the array being played
-int sineClickArrayPosition = 0;  // position for the sine click - the length of the array is fixed
-
 hw_timer_t * timer = NULL;  // we only need one timer since the sample rate is the same for all sounds
 
+const int clickDuration = 7;  // length of the click in ms
+const int sineClickDuration = 50; // length of the sine click in ms
+int sineClickArrayPosition = 0;  // position for the sine click - the length of the array is fixed
+int wristArrayPosition = 0;  // position in the array being played
+int fingerArrayPosition = 0;
+int fingerArrayLength = 0;  // length of the array being played
+
 int receivedValue = 0;  // value received from the serial port
-int soundValue = 0;
 int clickValue;
+int wristValue = 0;
+int fingerValue = 0;
+
 int sineClickOutput = -1;
 int sineClickVolume;
 unsigned long clickTimer = 0;
@@ -51,42 +49,46 @@ uint16_t* generateSineTable(int frequency, int sampleRate)
 }
 
 int sineTable150Length = sampleRate / 150;
-int sineTable190Length = sampleRate / 190;
+int sineTable190Length = sampleRate / 250;  // temporary
 int sineTable250Length = sampleRate / 250;
 uint16_t* sineTable150 = generateSineTable(150, sampleRate); // 150 Hz sine wave for the motor on the index finger
-uint16_t* sineTable190 = generateSineTable(190, sampleRate); // 190 Hz sine wave for the motor on the index finger
+uint16_t* sineTable190 = generateSineTable(250, sampleRate); // 190 Hz sine wave for the motor on the index finger  temporary
 uint16_t* sineTable250 = generateSineTable(250, sampleRate); // 250 Hz sine wave for the sine click
 
 // Interrupt function to play the noise and the sine waves
 void IRAM_ATTR onTimer()
 {
-  if (soundValue > 0)
+  if (wristValue > 0 && wristValue <= 100000)
   {
-    if(arrayPosition < arrayLength)
+    ledcWrite(0, whitenoise_data[wristArrayPosition] * wristValue / 100000);
+    wristArrayPosition++;
+    if (wristArrayPosition >= whitenoise_length)
     {
-      if (soundValue <= 100000)
-      {
-        ledcWrite(0, whitenoise_data[arrayPosition] * soundValue / 100000);
-      }else if (soundValue <= 200000)
-      {
-        ledcWrite(2, sineTable150[arrayPosition] * (soundValue - 100000) / 100000);
-      } else if (soundValue <= 300000)
-      {
-        ledcWrite(4, sineTable150[arrayPosition] * (soundValue - 200000) / 100000);
-      } else if (soundValue <= 400000)
-      {
-        ledcWrite(2, sineTable190[arrayPosition] * (soundValue - 300000) / 100000);
-      } else if (soundValue <= 500000)
-      {
-        ledcWrite(4, sineTable190[arrayPosition] * (soundValue - 400000) / 100000);
-      } else if (soundValue <= 600000)
-      {
-        ledcWrite(4, sineTable190[arrayPosition] * (soundValue - 500000) / 100000);
-      }
-      arrayPosition++;
-    } else
+      wristArrayPosition = 0;
+    }
+  }
+  if (fingerValue > 0)
+  {
+    if (fingerValue <= 200000)
     {
-      arrayPosition = 0;
+      ledcWrite(2, sineTable150[fingerArrayPosition] * (fingerValue - 100000) / 100000);
+    } else if (fingerValue <= 300000)
+    {
+      ledcWrite(4, sineTable150[fingerArrayPosition] * (fingerValue - 200000) / 100000);
+    } else if (fingerValue <= 400000)
+    {
+      ledcWrite(2, sineTable190[fingerArrayPosition] * (fingerValue - 300000) / 100000);
+    } else if (fingerValue <= 500000)
+    {
+      ledcWrite(4, sineTable190[fingerArrayPosition] * (fingerValue - 400000) / 100000);
+    } else if (fingerValue <= 600000)
+    {
+      ledcWrite(4, sineTable190[fingerArrayPosition] * (fingerValue - 500000) / 100000);
+    }
+    fingerArrayPosition++;
+    if(fingerArrayPosition >= fingerArrayLength)
+    {
+      fingerArrayPosition = 0;
     }
   }
   if (sineClickVolume > 0)
@@ -127,7 +129,7 @@ void playStartSequence()
 void setup()
 {
   Serial.begin(115200);
-  Serial.setTimeout(10);
+  Serial.setTimeout(1);
   // Serial.print("APB Freq = ");
   // Serial.print(getApbFrequency());
   // Serial.println(" Hz");
@@ -148,7 +150,6 @@ void setup()
   timerAttachInterrupt(timer, &onTimer, true);
   timerAlarmWrite(timer, 1000000 / sampleRate, true);  // nombre de us (1 000 000 us = 1s pour rappel)
   timerAlarmEnable(timer);
-  
   delay(2000);
   playStartSequence();
 }
@@ -158,9 +159,15 @@ void loop()
   if (Serial.available() > 0)
   {
     receivedValue = Serial.parseInt();
-    // Serial.println(receivedValue);
-    // -1 to -7 are clicks, -700001 to -1300000 are sine clicks
-    if (receivedValue < 0)
+    if (receivedValue == 0)
+    {
+      wristValue = 0;
+      fingerValue = 0;
+      for (int i = 0; i <= 5; i++)
+      {
+        ledcWrite(i, 0);
+      }
+    } else if (receivedValue < 0)  // -1 to -7 are clicks, -700001 to -1300000 are sine clicks
     {
       if (receivedValue < -7){
         sineClickOutput = -receivedValue/100000 - 7;
@@ -186,19 +193,20 @@ void loop()
       clickTimer = millis();
     } else 
     {
-      soundValue = receivedValue;
-      if (soundValue <= 100000)
+      if (receivedValue <= 100000)
       {
-        arrayPosition = 0;
-        arrayLength = whitenoise_length;
-      } else if (soundValue <= 300000)
+        wristValue = receivedValue;
+        wristArrayPosition = 0;
+      } else if (receivedValue <= 300000)
       {
-        arrayPosition = 0;
-        arrayLength = sineTable150Length;
-      } else if (soundValue <= 500000)
+        fingerValue = receivedValue;
+        fingerArrayPosition = 0;
+        fingerArrayLength = sineTable150Length;
+      } else if (receivedValue <= 500000)
       {
-        arrayPosition = 0;
-        arrayLength = sineTable190Length;
+        fingerValue = receivedValue;
+        fingerArrayPosition = 0;
+        fingerArrayLength = sineTable190Length;
       }
     }
   }

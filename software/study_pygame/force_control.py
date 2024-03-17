@@ -28,7 +28,7 @@ class FC:
         self.clock = pygame.time.Clock()
 
         # load the results or create the file if it doesn't exist
-        self.results_filepath = f'./P{config.id}/P{config.id}-fc-results.csv'
+        self.results_filepath = f'./participants_data/P{config.id}/P{config.id}-fc-results.csv'
         if not os.path.exists(self.results_filepath):
             with open(self.results_filepath, 'w', newline='') as csv_file:
                 # write the header

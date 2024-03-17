@@ -15,21 +15,26 @@ com_port_keyboard = None
 baud_rate = 115200
 
 # Wrist calibration
-wrist_max_vib_lvl = 30   # starting value in %
-wrist_nb_trials = 40    # number of trials
-wrist_descending_starting_step = 5   # starting descending step in %
-wrist_ascending_starting_step = 0.25  # starting ascending step in %
+wrist_max_vib_lvl = 25   # starting value in %
+wrist_max_nb_trials = 60    # max number of trials
+wrist_descending_starting_step = wrist_max_vib_lvl / 4   # starting descending step in %
+wrist_ascending_starting_step = None  # starting ascending step in %
 wrist_coeff = 0.5   # coefficient applied to the step after a change in answer
+wrist_max_changing_points = 14
 
 # Index calibration
 index_max_vib_lvl = 5   # starting value in %
-index_nb_trials = 40    # number of trials
-index_descending_starting_step = 1  # starting descending step in %
-index_ascending_starting_step = 0.015   # starting ascending step in %
-index_coeff = 0.5   # coefficient applied to the step after a change in answer
+index_max_nb_trials = 60    # number of trials
+index_descending_starting_step = index_max_vib_lvl / 4  # starting descending step in %
+index_ascending_starting_step = None   # starting ascending step in %
+index_coeff = 0.7   # coefficient applied to the step after a change in answer
+index_max_changing_points = 14
 
 # Stochastic resonance
 sr_coeff = 0.6  # factor to be applied to the threshold value to get the white noise level
+
+# Vibration settings
+finger_coeff = 1.5  # factor to be applied to the threshold value to get the vibration level
 
 # Tasks tracking
 tasks = []

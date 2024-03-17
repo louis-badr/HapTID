@@ -20,49 +20,27 @@ class CRT:
         self.ser_mega.open()
         self.ser_haptid.close()
         self.ser_haptid.open()
-
         # pygame things
-        pygame.display.set_caption("Choice Reaction Time - HapTID")
+        pygame.display.set_caption("Choice Reaction Time Training - HapTID")
         self.screen = pygame.display.get_surface()
         self.screen_w = pygame.display.Info().current_w
         self.screen_h = pygame.display.Info().current_h
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
-
         # positions of the circles for each finger
         self.circles_pos_x = [0.673, 0.582, 0.496, 0.412, 0.33]
         self.circles_pos_y = [0.498, 0.19, 0.151, 0.189, 0.34]
-
-        # set vibration intensity
-        self.wrist_vib_lvl = config.wrist_threshold * config.sr_coeff
-
         # load the hand image
         hand_img = pygame.image.load('assets/hand_drawing.png').convert_alpha()
-
-        # we study the non-dominant hand, the image is of a left hand
-        # we flip it as well as the circles if the participant is left-handed
+        # we flip everything if the participant is left-handed
         if config.dominant_hand == 'L':
             hand_img = pygame.transform.flip(hand_img, True, False)
             self.circles_pos_x = [1-i for i in self.circles_pos_x]
-
         # scale the image to the screen size
         hand_img_w, hand_img_h = hand_img.get_rect().size
         ratio = hand_img_w/hand_img_h
         self.hand_img = pygame.transform.smoothscale(hand_img, (int(ratio*self.screen_h*0.8), int(self.screen_h*0.8)))
-        
-        # load the results or create the file if it doesn't exist
-        self.results_filepath = f'./P{config.id}/P{config.id}-crt-results.csv'
-        if not os.path.exists(self.results_filepath):
-            with open(self.results_filepath, 'w', newline='') as csv_file:
-                # write the header
-                csv_writer = csv.writer(csv_file, delimiter=';')
-                csv_writer.writerow(['Task #', 'Task type', 'Wrist vibration', 'Finger to press', 'WS type', 'IS type','Finger pressed', 'Reaction time(ms)'])
-        with open(self.results_filepath) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=';')
-            print(len(list(csv_reader)))
-            if len(list(csv_reader)) > 1:
-                config.completed_crt_tasks = list(csv_reader)[0]
-            print(config.completed_crt_tasks)
+        # get the training list of tasks
 
     def run(self):
         while True:

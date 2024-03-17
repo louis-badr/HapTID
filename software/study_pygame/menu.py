@@ -47,14 +47,14 @@ class Menu:
                             force_control.FC().run()
             
             self.screen.fill('black')
-            UI.draw_text(f'Participant #{config.id}', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/10)
-            quit_button = UI.draw_button('Quit', self.font, 'red', self.screen, 75, 50)
-            wrist_calib_button = UI.draw_button('Start wrist calibration', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2-100)
+            UI.draw_text(f'Participant #{config.id}', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/10)
+            quit_button = UI.draw_button('Quit', self.font, UI.color_red, self.screen, 75, 50)
+            wrist_calib_button = UI.draw_button('Start wrist calibration', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2-100)
             if config.wrist_threshold is not None:
-                index_calib_button = UI.draw_button('Start index calibration', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
+                index_calib_button = UI.draw_button('Start index calibration', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
             if config.wrist_threshold is not None and config.finger_threshold is not None:
-                exercices_button = UI.draw_button('Start exercices', self.font, 'white', self.screen, self.screen_w/2, self.screen_h/2)
-                UI.draw_text('Calibration complete !', self.font, 'green', self.screen, self.screen_w/2, self.screen_h/2+100)
+                exercices_button = UI.draw_button('Start exercices', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+                UI.draw_text('Calibration complete !', self.font, UI.color_green, self.screen, self.screen_w/2, self.screen_h/2+100)
 
             pygame.display.update()
             self.clock.tick(config.framerate)

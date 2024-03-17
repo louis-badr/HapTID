@@ -18,8 +18,8 @@ config.com_port_keyboard = 'COM' + input('\nEnter the keyboard COM port n°: ')
 # ask for the participant's running order number
 config.id = input("\nEnter the participant's running order number: ")
 # create folder for participant if it doesn't exist
-if not os.path.exists(f'./P{config.id}'):
-    os.mkdir(f'./P{config.id}')
+if not os.path.exists(f'./participants_data/P{config.id}'):
+    os.mkdir(f'./participants_data/P{config.id}')
     # # create a wrist calibration jsonl file for the participant
     # with open(f'./P{config.id}/P{config.id}-wrist-calib.jsonl', 'w') as file:
     #     file.write('')
@@ -57,7 +57,9 @@ with open('./running_order_table.csv') as csv_file:
 # initialize pygame
 pygame.init()
 
-screen = pygame.display.set_mode((1280,720))
+#screen = pygame.display.set_mode((1280,720))
+# fullscreen
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 if __name__ == '__main__':
     app = menu.Menu()
