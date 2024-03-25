@@ -72,14 +72,14 @@ class Threshold_assess:
         while len(self.desc_vib_lvl_history) < self.max_nb_trials and len(self.desc_changing_points) < self.max_chg_points:
             # display the screen without the buttons yet
             self.screen.fill('black')
-            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 1 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 0 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
             pygame.display.update()
             # wait a bit
             pygame.time.wait(random.randint(1000, 4000))
             #! vibrate here during a random time
             print(self.desc_answers_history)
             val_to_send = round(self.desc_vib_lvl * 1000)
-            if config.current_assess > 1 and self.desc_vib_lvl > 0:
+            if config.current_assess > 0 and self.desc_vib_lvl > 0:
                 if self.stim_type == '80':
                     if config.dominant_hand == "R":
                         val_to_send += 200000
@@ -90,8 +90,14 @@ class Threshold_assess:
                         val_to_send += 400000
                     else:
                         val_to_send += 300000
+                elif self.stim_type == 'click':
+                    if config.dominant_hand == "R":
+                        val_to_send  += 400000
+                    else:
+                        val_to_send += 200000
+                    val_to_send *= -1 
             self.ser_haptid.write(f'{val_to_send}'.encode())
-            print(f'Trial n°{self.desc_counter} : {self.max_vib_lvl}%')
+            print(f'Trial n°{self.desc_counter} : {self.desc_vib_lvl}%')
             self.desc_counter += 1
             pygame.time.wait(random.randint(1000, 2500))
             #! stop all vibrations
@@ -104,9 +110,9 @@ class Threshold_assess:
             pygame.time.wait(random.randint(500, 1000))
             # display the buttons
             self.screen.fill('black')
-            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 1 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
-            no_button = UI.draw_button('Non', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2 + 100)
-            yes_button = UI.draw_button('Oui', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2 - 100)
+            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 0 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+            no_button = UI.draw_button('Non', self.font, UI.color_text, self.screen, self.screen_w/2-100, self.screen_h/2+100)
+            yes_button = UI.draw_button('Oui', self.font, UI.color_text, self.screen, self.screen_w/2+100, self.screen_h/2+100)
             pygame.display.update()
             # wait for the participant to answer
             running = True
@@ -160,7 +166,7 @@ class Threshold_assess:
             "Dominant hand": config.dominant_hand,
             "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Assessment type": self.stim_type,
-            "Location": "wrist" if config.current_assess == 1 else "index",
+            "Location": "wrist" if config.current_assess == 0 else "index",
             "SR": "on" if config.current_assess > 4 and config.current_assess < 8 else "off",
             "Descending threshold": self.desc_threshold,
             "Descending stim level history": self.desc_vib_lvl_history,
@@ -176,16 +182,32 @@ class Threshold_assess:
         while len(self.asc_vib_lvl_history) < self.max_nb_trials and len(self.asc_changing_points) < self.max_chg_points:
             # display the screen without the buttons yet
             self.screen.fill('black')
-            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 1 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 0 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
             pygame.display.update()
             # wait a bit
             pygame.time.wait(random.randint(1000, 4000))
             #! vibrate here during a random time
             print(self.asc_answers_history)
-            #!!!!!!!!! A MODIFIER
-            val_to_send = round(self.asc_vib_lvl * 1000)
+            val_to_send = round(self.desc_vib_lvl * 1000)
+            if config.current_assess > 1 and self.desc_vib_lvl > 0:
+                if self.stim_type == '80':
+                    if config.dominant_hand == "R":
+                        val_to_send += 200000
+                    else:
+                        val_to_send += 100000
+                elif self.stim_type == '250':
+                    if config.dominant_hand == "R":
+                        val_to_send += 400000
+                    else:
+                        val_to_send += 300000
+                elif self.stim_type == 'click':
+                    if config.dominant_hand == "R":
+                        val_to_send  += 400000
+                    else:
+                        val_to_send += 200000
+                    val_to_send *= -1 
             self.ser_haptid.write(f'{val_to_send}'.encode())
-            print(f'Trial n°{self.asc_counter} : {self.max_vib_lvl}%')
+            print(f'Trial n°{self.asc_counter} : {self.asc_vib_lvl}%')
             self.asc_counter += 1
             pygame.time.wait(random.randint(1000, 2500))
             #! stop vibrating
@@ -194,9 +216,9 @@ class Threshold_assess:
             pygame.time.wait(random.randint(500, 1000))
             # display the buttons
             self.screen.fill('black')
-            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 1 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
-            no_button = UI.draw_button('Non', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2 + 100)
-            yes_button = UI.draw_button('Oui', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2 - 100)
+            UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 0 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+            no_button = UI.draw_button('Non', self.font, UI.color_text, self.screen, self.screen_w/2-100, self.screen_h/2+100)
+            yes_button = UI.draw_button('Oui', self.font, UI.color_text, self.screen, self.screen_w/2+100, self.screen_h/2+100)
             pygame.display.update()
             # wait for the participant to answer
             running = True
@@ -251,7 +273,7 @@ class Threshold_assess:
             "Dominant hand": config.dominant_hand,
             "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Assessment type": self.stim_type,
-            "Location": "wrist" if config.current_assess == 1 else "index",
+            "Location": "wrist" if config.current_assess == 0 else "index",
             "SR": "on" if config.current_assess > 4 and config.current_assess < 8 else "off",
             "Ascending threshold": self.asc_threshold,
             "Ascending stim level history": self.asc_vib_lvl_history,
@@ -268,7 +290,7 @@ class Threshold_assess:
             "Dominant hand": config.dominant_hand,
             "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Assessment type": self.stim_type,
-            "Location": "wrist" if config.current_assess == 1 else "index",
+            "Location": "wrist" if config.current_assess == 0 else "index",
             "SR": "on" if config.current_assess > 4 and config.current_assess < 8 else "off",
             "Final threshold": final_threshold
         }

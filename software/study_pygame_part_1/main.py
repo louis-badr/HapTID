@@ -37,6 +37,12 @@ for i in range(3):
 config.dominant_hand = input('\nDominant hand (L/R): ')
 
 config.current_assess = input(f'\nIf you want to skip assessments, type the number of the assessment you want to start from (2-10): ')
+if config.current_assess == '':
+    config.current_assess = 0
+else:
+    config.current_assess = int(config.current_assess)
+print(config.current_assess)
+print(type(config.current_assess))
 if config.current_assess >= 2 and config.current_assess <= 10:
     config.current_assess = int(config.current_assess - 1)
     config.wrist_threshold = input(f'\nWrist threshold for participant {config.id}: ')
