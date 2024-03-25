@@ -15,6 +15,8 @@ uint16_t sineTable[sampleRate] = {0};
 int arrayPosition = 0;
 int arrayLength = 0;
 
+int receivedValue = 0;
+
 void playStartSequence()
 {
   for (int i = 0; i <= 5; i++)
@@ -45,7 +47,7 @@ void IRAM_ATTR onTimer()
   {
     if (arrayPosition < arrayLength)
     {
-      ledcwWrite(0, sineTable[arrayPosition]);
+      ledcWrite(5, sineTable[arrayPosition]);
       arrayPosition++;
     }
     else
@@ -88,12 +90,25 @@ void loop()
 {
   if (Serial.available() > 0)
   {
-    int receivedValue = Serial.parseInt();
+    // on reçoit un entier entre 100000 et 99999999
+    // les trois premiers chiffres donnent la fréquence du signal de 1 à 999 Hz
+    // les chiffres suivants donnent le volume du signal de 0 à 99.999
+    receivedValue = Serial.parseInt();
     Serial.print("Received: ");
     Serial.println(receivedValue);
-    if (receivedValue > 0 && receivedValue <= 20000)
+    if (receivedValue == 0)
     {
-      arrayLength = sampleRate / receivedValue;
+      for (int i = 0; i <= 5; i++)
+      {
+        ledcWrite(i, 0);
+      }
+      Serial.println("Stopping tone");
+    }
+    else if (receivedValue >= 100000 && receivedValue <= 99999999)
+    {
+      int receivedFreq = receivedValue / 100000;
+      int receivedVol = receivedValue % 100000;
+      arrayLength = sampleRate / receivedFreq;
       // clear the old sine table
       for (int i = 0; i < arrayLength; i++)
       {
@@ -104,17 +119,16 @@ void loop()
       {
         sineTable[i] = (uint16_t)(sin(2 * PI * i / arrayLength) * pwmMax / 2 + pwmMax / 2);
       }
-      Serial.print("Playing tone at ");
-      Serial.print(receivedValue);
-      Serial.println(" Hz");
-    }
-    else if (receivedValue == 0)
-    {
-      for (int i = 0; i <= 5; i++)
+      // apply the volume
+      for (int i = 0; i < arrayLength; i++)
       {
-        ledcWrite(i, 0);
+        sineTable[i] = (uint16_t)(sineTable[i] * receivedVol / 100000);
       }
-      Serial.println("Stopping tone");
+      Serial.print("Playing tone at ");
+      Serial.print(receivedFreq);
+      Serial.print(" Hz with volume ");
+      Serial.print(receivedVol / 1000.0);
+      Serial.println("%");
     }
     else
     {

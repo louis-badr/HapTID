@@ -8,8 +8,8 @@ The aim of using an accelerometer with vibration motors is to:
 
 Using the ADXL345 accelerometer:
 
-VCC -> 3.3V
-GND -> GND
-X-OUT -> any input pin
-Y-OUT -> any input pin
-Z-OUT -> any input pin
+- VCC -> 3.3V
+- GND -> GND
+- X-OUT -> any input pin
+- Y-OUT -> any input pin
+- Z-OUT -> any input pin

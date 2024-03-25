@@ -37,7 +37,7 @@ int readStableAxis(int axisPin)
 // Calibrate all axes by reading the value at rest
 axesVal calibrateAllAxes()
 {
-  Serial.println("Calibration started");
+  // Serial.println("Calibration started");
   // for each axis read the value at rest
   xRest = readStableAxis(xPin);
   yRest = readStableAxis(yPin);
@@ -46,7 +46,7 @@ axesVal calibrateAllAxes()
   xRest = (xRest / adcRange) * 6.0 - 3.0;
   yRest = (yRest / adcRange) * 6.0 - 3.0;
   zRest = (zRest / adcRange) * 6.0 - 3.0;
-  Serial.println("Calibration Done");
+  // Serial.println("Calibration Done");
   return {xRest, yRest, zRest};
 }
 
@@ -117,8 +117,8 @@ void loop()
   if (Serial.available() > 0) 
   {
     char incomingByte = Serial.read();
-    Serial.print("Received : ");
-    Serial.println(incomingByte);
+    // Serial.print("Received : ");
+    // Serial.println(incomingByte);
 
     // Calibration
     if((int)incomingByte == '1')
@@ -159,8 +159,8 @@ void loop()
     // Read acceleration
     if((int)incomingByte == '4')
     {
-      Serial.print("Acceleration:");
-      Serial.println(readAcceleration(readAllAxesCentered()), 4);
+      // Serial.print("Acceleration:");
+      Serial.print(readAcceleration(readAllAxesCentered()), 4);
     }
   }
 
