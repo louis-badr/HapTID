@@ -27,11 +27,11 @@ with open('./running_order.csv', mode='r') as file:
 for i in range(3):
     for stim in config.stim_order:
         if stim == '80':
-            config.stim_order_params.append(['80', config.index_max_vib_lvl, config.max_nb_trials, config.max_chg_points, config.index_desc_start_step, config.index_staircase_coeff])
+            config.stim_order_params.append(['80', config.index_max_vib_lvl, config.max_nb_trials, config.max_chg_points, config.index_vib_desc_start_step, config.index_staircase_coeff])
         elif stim == '250':
-            config.stim_order_params.append(['250', config.index_max_vib_lvl, config.max_nb_trials, config.max_chg_points, config.index_desc_start_step, config.index_staircase_coeff])
+            config.stim_order_params.append(['250', config.index_max_vib_lvl, config.max_nb_trials, config.max_chg_points, config.index_vib_desc_start_step, config.index_staircase_coeff])
         elif stim == 'click':
-            config.stim_order_params.append(['click', config.index_max_click_lvl, config.max_nb_trials, config.max_chg_points, config.index_desc_start_step, config.index_staircase_coeff])
+            config.stim_order_params.append(['click', config.index_max_click_lvl, config.max_nb_trials, config.max_chg_points, config.index_click_desc_start_step, config.index_staircase_coeff])
 
 # ask for participant dominant hand
 config.dominant_hand = input('\nDominant hand (L/R): ')
@@ -41,10 +41,8 @@ if config.current_assess == '':
     config.current_assess = 0
 else:
     config.current_assess = int(config.current_assess)
-print(config.current_assess)
-print(type(config.current_assess))
-if config.current_assess >= 2 and config.current_assess <= 10:
-    config.current_assess = int(config.current_assess - 1)
+if config.current_assess >= 1 and config.current_assess <= 9:
+    config.current_assess = int(config.current_assess) - 1
     config.wrist_threshold = input(f'\nWrist threshold for participant {config.id}: ')
     config.wrist_threshold = float(config.wrist_threshold)
 
@@ -53,6 +51,11 @@ ports = serial.tools.list_ports.comports()
 for port in sorted(ports):
         print(port)
 config.com_port_haptid = 'COM' + input('\nEnter the HapTID device COM port n°: ')
+# arduino things
+config.ser_haptid = serial.Serial(config.com_port_haptid, 115200, timeout=.1)
+# dirty fix to make sure the arduino is ready to receive data
+config.ser_haptid.close()
+config.ser_haptid.open() 
 
 # initialize pygame
 pygame.init()

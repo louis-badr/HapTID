@@ -103,6 +103,29 @@ def plot_volume_response(freq, vol_min, vol_max, step_size):
     plt.ylabel('Acceleration (g)')
     plt.show()
 
+def plot_n_times(freq, vol, n):
+    # wait
+    time.sleep(3)
+    # start calibration
+    ser_accelerometer.write(b'1')
+    # wait
+    time.sleep(3)
+    accel_values = []
+    str_mcu = str(freq) + str(vol * 1000)
+    for i in range(n):
+        # start vibration
+        ser_haptid.write(str_mcu.encode())
+        # wait 3 seconds
+        time.sleep(3)
+        # measure acceleration
+        ser_accelerometer.write(b'4')
+        # read result from accelerometer
+        accel_values.append(ser_accelerometer.readline())
+        # stop vibration
+        ser_haptid.write(b'0')
+        # wait
+        time.sleep(3)
+
 if __name__ == "__main__":
     # list available serial ports
     ports = list_ports.comports()
@@ -123,8 +146,9 @@ if __name__ == "__main__":
     print("\nPlease type the number of the function you want to use:")
     print("1. Measure latency")
     print("2. Record accelerometer data")
-    print("3. Plot acceleration as a function of a frequency range and generate equalizer coefficients")
-    print("4. Plot acceleration as a function of volume for a single frequency")
+    print("3. Plot acceleration for a frequency range (constant volume) and generate equalizer coefficients")
+    print("4. Plot acceleration as a function of volume (constant frequency)")
+    print("5. Plot acceleration N time (constant volume and frequency)")
     input_num = input(">> ")
     match input_num:
         case "1":
@@ -150,5 +174,13 @@ if __name__ == "__main__":
             print('\nWhat step size do you want to use? (ex:0.1)')
             step_size = float(input('>> '))
             plot_volume_response(freq, vol_min, vol_max, step_size)
+        case "5":
+            print('\nWhat frequency do you want to use? (ex: 100):')
+            freq = int(input('>> '))
+            print('What volume do you want to use? (in %)')
+            vol = float(input('>> '))
+            print('How many times do you want to measure acceleration?')
+            n = int(input('>> '))
+            plot_n_times(freq, vol, n)
         case _:
             print("Invalid input")

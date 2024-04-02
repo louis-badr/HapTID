@@ -158,6 +158,8 @@ void loop()
   if (Serial.available() > 0)
   {
     receivedValue = Serial.parseInt();
+    Serial.print("Received Value: ");
+    Serial.println(receivedValue);
     if (receivedValue == 0)
     {
       wristValue = 0;
