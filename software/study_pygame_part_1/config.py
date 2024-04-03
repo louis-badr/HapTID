@@ -20,14 +20,15 @@ current_assess = 0
 
 wrist_max_vib_lvl = 25   # starting value in %
 index_max_vib_lvl = 15   # starting value in %  adjust after
-index_max_click_lvl = 20
-max_nb_trials = 40    # max number of trials
-max_chg_points = 11
-wrist_staircase_coeff = 0.75
-index_staircase_coeff = 0.75
+index_max_click_lvl = 30
+max_nb_trials = 35    # max number of trials
+max_chg_points = 9
+wrist_staircase_coeff = 0.8
+index_staircase_coeff = 0.8
 wrist_desc_start_step = wrist_max_vib_lvl / 4   # starting descending step in %
 index_vib_desc_start_step = index_max_vib_lvl / 4
 index_click_desc_start_step = index_max_click_lvl / 4
+min_step = 0.01
 
 stim_order_params = [
     # stim_type, sr, max_vib_lvl, max_nb_trials, max_chg_points, desc_start_step, staircase_coeff

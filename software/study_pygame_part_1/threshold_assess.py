@@ -110,6 +110,7 @@ class Threshold_assess:
                     pygame.time.wait(random.randint(2000, 3000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
+                    
             self.desc_counter += 1
             #! stop all vibrations
             config.ser_haptid.write('0'.encode())
@@ -147,8 +148,8 @@ class Threshold_assess:
                                 self.desc_answers_history.append('y')
                                 self.desc_changing_points.append(self.desc_vib_lvl)
                                 self.desc_step *= self.staircase_coeff
-                                if self.desc_step < 0.001:
-                                    self.desc_step = 0.001
+                                if self.desc_step < config.min_step:
+                                    self.desc_step = config.min_step
                                 self.desc_vib_lvl -= self.desc_step
                                 self.desc_vib_lvl = round(self.desc_vib_lvl, 3)
                             if self.desc_vib_lvl < 0:
@@ -165,8 +166,8 @@ class Threshold_assess:
                                 self.desc_answers_history.append('n')
                                 self.desc_changing_points.append(self.desc_vib_lvl)
                                 self.desc_step *= self.staircase_coeff
-                                if self.desc_step < 0.001:
-                                    self.desc_step = 0.001
+                                if self.desc_step < config.min_step:
+                                    self.desc_step = config.min_step
                                 self.desc_vib_lvl += self.desc_step
                                 self.desc_vib_lvl = round(self.desc_vib_lvl, 3)
                             if self.desc_vib_lvl > self.max_vib_lvl:
@@ -174,7 +175,7 @@ class Threshold_assess:
                             running = False
         print('Descending assessment done.')
         # save the results
-        self.desc_threshold = round(numpy.mean(self.desc_changing_points[-3:]), 3)
+        self.desc_threshold = round(numpy.mean(self.desc_changing_points[-4:]), 3)
         data = {
             "Participant": config.id,
             "Dominant hand": config.dominant_hand,
@@ -276,8 +277,8 @@ class Threshold_assess:
                                     self.asc_answers_history.append('y')
                                     self.asc_changing_points.append(self.asc_vib_lvl)
                                     self.asc_step *= self.staircase_coeff
-                                    if self.asc_step < 0.001:
-                                        self.asc_step = 0.001
+                                    if self.asc_step < config.min_step:
+                                        self.asc_step = config.min_step
                                     self.asc_vib_lvl -= self.asc_step
                                     self.asc_vib_lvl = round(self.asc_vib_lvl, 3)
                             if self.asc_vib_lvl < 0:
@@ -294,8 +295,8 @@ class Threshold_assess:
                                 self.asc_answers_history.append('n')
                                 self.asc_changing_points.append(self.asc_vib_lvl)
                                 self.asc_step *= self.staircase_coeff
-                                if self.asc_step < 0.001:
-                                    self.asc_step = 0.001
+                                if self.asc_step < config.min_step:
+                                    self.asc_step = config.min_step
                                 self.asc_vib_lvl += self.asc_step
                                 self.asc_vib_lvl = round(self.asc_vib_lvl, 3)
                             if self.asc_vib_lvl > self.max_vib_lvl:
@@ -303,7 +304,7 @@ class Threshold_assess:
                             running = False
         print('Ascending assessment done.')
         # save the results
-        self.asc_threshold = round(numpy.mean(self.asc_changing_points[-3:]), 3)
+        self.asc_threshold = round(numpy.mean(self.asc_changing_points[-4:]), 3)
         data = {
             "Participant": config.id,
             "Dominant hand": config.dominant_hand,

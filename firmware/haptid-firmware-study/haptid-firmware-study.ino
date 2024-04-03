@@ -4,8 +4,8 @@
 const int shdnPins[3] = {22, 19, 4};  // keep pin on HIGH to run the amp - each amp controls two motors
 const int motorPins[6] = {32, 33, 25, 26, 27, 12};  // in order from left to right
 
-const int pwmRes = 12;
-const int sampleRate = 16000;
+const int pwmRes = 13;
+const int sampleRate = 8000;
 const int pwmMax = pow(2, pwmRes) - 1;
 const int pwmFreq = (8 * pow(10, 7)) / pow(2, pwmRes);  // 80 MHz / 2^12 = 19531.25 Hz > sampleRate
 
