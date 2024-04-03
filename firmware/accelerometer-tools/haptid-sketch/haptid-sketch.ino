@@ -1,7 +1,7 @@
 #include "Arduino.h"
 
-const int pwmRes = 12;
-const int sampleRate = 16000;
+const int pwmRes = 14;
+const int sampleRate = 4000;
 
 const int shdnPins[3] = {22, 19, 4};  // keep pin on HIGH to run the amp - each amp controls two motors
 const int motorPins[6] = {32, 33, 25, 26, 27, 12};  // in order from left to right

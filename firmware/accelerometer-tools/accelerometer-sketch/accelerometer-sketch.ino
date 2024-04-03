@@ -24,7 +24,7 @@ struct axesVal
 };
 
 // Read the value of each axis at rest (average of sampleSize samples)
-int readStableAxis(int axisPin)
+int readSampleAxis(int axisPin)
 {
   long reading = 0;
   for (int i = 0; i <= sampleSize; i++)
@@ -39,9 +39,9 @@ axesVal calibrateAllAxes()
 {
   // Serial.println("Calibration started");
   // for each axis read the value at rest
-  xRest = readStableAxis(xPin);
-  yRest = readStableAxis(yPin);
-  zRest = readStableAxis(zPin);
+  xRest = readSampleAxis(xPin);
+  yRest = readSampleAxis(yPin);
+  zRest = readSampleAxis(zPin);
   // convert raw values to G between -3 and 3 G (ADXL335)
   xRest = (xRest / adcRange) * 6.0 - 3.0;
   yRest = (yRest / adcRange) * 6.0 - 3.0;
@@ -60,10 +60,31 @@ axesVal readAllAxesRaw()
   return {xRaw, yRaw, zRaw};
 }
 
+// Read raw value of all axes
+axesVal readAllAxesRawSamples()
+{
+  // read raw values
+  float xRaw = readSampleAxis(xPin);
+  float yRaw = readSampleAxis(yPin);
+  float zRaw = readSampleAxis(zPin);
+  return {xRaw, yRaw, zRaw};
+}
+
 // Read the value of all axes in G
 axesVal readAllAxesG()
 {
   axesVal axesRaw = readAllAxesRaw();
+  // convert raw values to G between -3 and 3 G (ADXL335)
+  float xG = (axesRaw.x / adcRange) * 6.0 - 3.0;
+  float yG = (axesRaw.y / adcRange) * 6.0 - 3.0;
+  float zG = (axesRaw.z / adcRange) * 6.0 - 3.0;
+  return {xG, yG, zG};
+}
+
+// Read the value of all axes in G
+axesVal readAllAxesGSamples()
+{
+  axesVal axesRaw = readAllAxesRawSamples();
   // convert raw values to G between -3 and 3 G (ADXL335)
   float xG = (axesRaw.x / adcRange) * 6.0 - 3.0;
   float yG = (axesRaw.y / adcRange) * 6.0 - 3.0;
@@ -160,7 +181,7 @@ void loop()
     if((int)incomingByte == '4')
     {
       // Serial.print("Acceleration:");
-      Serial.print(readAcceleration(readAllAxesCentered()), 4);
+      Serial.print(readAcceleration(readAllAxesG()), 4);
     }
   }
 

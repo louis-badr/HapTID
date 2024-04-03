@@ -104,27 +104,38 @@ def plot_volume_response(freq, vol_min, vol_max, step_size):
     plt.show()
 
 def plot_n_times(freq, vol, n):
-    # wait
-    time.sleep(3)
-    # start calibration
-    ser_accelerometer.write(b'1')
-    # wait
-    time.sleep(3)
     accel_values = []
-    str_mcu = str(freq) + str(vol * 1000)
+    str_mcu = str(freq) + str(round(vol * 1000))
     for i in range(n):
+        # measure acceleration
+        ser_accelerometer.write(b'4')
+        # read result from accelerometer at rest as float
+        accel_values.append(ser_accelerometer.readline().decode())
+        time.sleep(3)
         # start vibration
         ser_haptid.write(str_mcu.encode())
+        print(f'Sent: {str_mcu} to HapTID board')
         # wait 3 seconds
         time.sleep(3)
         # measure acceleration
         ser_accelerometer.write(b'4')
-        # read result from accelerometer
-        accel_values.append(ser_accelerometer.readline())
+        # read result from accelerometer as float
+        accel_values.append(ser_accelerometer.readline().decode())
+        time.sleep(3)
         # stop vibration
         ser_haptid.write(b'0')
+        print('Sent 0 to HapTID board')
         # wait
         time.sleep(3)
+
+    print(accel_values)
+    # plot acceleration
+    plt.title(f'Frequency: {freq} Hz, Volume: {vol} %')
+    plt.scatter(range(1, len(accel_values)+1), accel_values)
+    plt.xlabel('Trials')
+    plt.ylabel('Acceleration (g)')
+    plt.show()
+
 
 if __name__ == "__main__":
     # list available serial ports
