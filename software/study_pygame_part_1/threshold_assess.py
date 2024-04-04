@@ -56,6 +56,7 @@ class Threshold_assess:
         # waiting screen
         self.screen.fill('black')
         UI.draw_text('Cliquez n\'importe où pour commencer', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+        UI.draw_text(f'{config.current_assess+1}/10', self.font, UI.color_text, self.screen, self.screen_w-100, 50)
         pygame.display.update()
         running = True
         while running:

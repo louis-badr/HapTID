@@ -8,7 +8,7 @@
     3. Clicks
 
 ## Setup
-The participant is seated at a table in front of a computer screen, with the HapTID device installed on his non-dominant hand. His index finger rests on the surface of a bone-conduction audio speaker. The participant wears earplugs to isolate him from the sounds the stimulators and the speaker can produce.
+The participant is seated at a table in front of a computer screen, with the HapTID device installed on his non-dominant hand. Their index finger rests on the surface of a bone-conduction audio speaker. The participant wears earplugs to isolate them from the sounds the stimulators and the speaker can produce.
 
 ## Course of the study
 The study aims to assess the participant's perceptual thresholds to different stimuli.

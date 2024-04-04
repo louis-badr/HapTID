@@ -129,6 +129,7 @@ def plot_n_times(freq, vol, n):
         time.sleep(3)
 
     print(accel_values)
+    accel_values = [float(x) for x in accel_values]
     # plot acceleration
     plt.title(f'Frequency: {freq} Hz, Volume: {vol} %')
     plt.scatter(range(1, len(accel_values)+1), accel_values)
