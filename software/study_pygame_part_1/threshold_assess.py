@@ -111,6 +111,7 @@ class Threshold_assess:
                     pygame.time.wait(random.randint(2000, 3000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
+                    pygame.time.wait(random.randint(2000, 4000))
                     
             self.desc_counter += 1
             #! stop all vibrations
@@ -240,6 +241,7 @@ class Threshold_assess:
                     pygame.time.wait(random.randint(2000, 3000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
+                    pygame.time.wait(random.randint(2000, 4000))
             self.asc_counter += 1
             #! stop all vibrations
             config.ser_haptid.write('0'.encode())
