@@ -41,7 +41,7 @@ if config.current_assess == '':
     config.current_assess = 0
 else:
     config.current_assess = int(config.current_assess)
-if config.current_assess >= 1 and config.current_assess <= 9:
+if config.current_assess >= 1 and config.current_assess <= 10:
     config.current_assess = int(config.current_assess) - 1
     config.wrist_threshold = input(f'\nWrist threshold for participant {config.id}: ')
     config.wrist_threshold = float(config.wrist_threshold)
