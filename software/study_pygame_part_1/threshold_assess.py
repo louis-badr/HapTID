@@ -46,7 +46,9 @@ class Threshold_assess:
         self.desc_threshold = None
         self.asc_threshold = None
         self.noise_lvl = 0
-        if config.current_assess > 3 and config.current_assess < 7:
+        self.sr_on = False
+        if config.current_assess == 2:
+            self.sr_on = True
             self.noise_lvl = round(config.wrist_threshold * config.sr_coeff * 1000)
             print(f'Noise_lvl: {round(config.wrist_threshold * config.sr_coeff, 3)}%')
             config.ser_haptid.write(f'{self.noise_lvl}'.encode())
@@ -56,7 +58,7 @@ class Threshold_assess:
         # waiting screen
         self.screen.fill('black')
         UI.draw_text('Cliquez n\'importe où pour commencer', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
-        UI.draw_text(f'{config.current_assess+1}/10', self.font, UI.color_text, self.screen, self.screen_w-100, 50)
+        UI.draw_text(f'{config.current_assess+1}/{len(config.stim_order_params)}', self.font, UI.color_text, self.screen, self.screen_w-100, 50)
         pygame.display.update()
         running = True
         while running:
@@ -118,7 +120,7 @@ class Threshold_assess:
             config.ser_haptid.write('0'.encode())
             print('Sending 0 to MCU')
             #! reactive the white noise if needed
-            if config.current_assess > 3 and config.current_assess < 7:
+            if self.sr_on:
                 pygame.time.wait(50)
                 config.ser_haptid.write(f'{self.noise_lvl}'.encode())
                 print(f'Sending {self.noise_lvl} to MCU')
@@ -185,7 +187,7 @@ class Threshold_assess:
             "End": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Assessment type": self.stim_type,
             "Location": "wrist" if config.current_assess == 0 else "index",
-            "SR": "on" if config.current_assess > 3 and config.current_assess < 7 else "off",
+            "SR": "on" if self.sr_on else "off",
             "Descending threshold": self.desc_threshold,
             "Descending stim level history": self.desc_vib_lvl_history,
             "Descending level changing points": self.desc_changing_points,
@@ -247,7 +249,7 @@ class Threshold_assess:
             config.ser_haptid.write('0'.encode())
             print('Sending 0 to MCU')
             #! reactive the white noise if needed
-            if config.current_assess > 3 and config.current_assess < 7:
+            if self.sr_on:
                 pygame.time.wait(50)
                 config.ser_haptid.write(f'{self.noise_lvl}'.encode())
                 print(f'Sending {self.noise_lvl} to MCU')
@@ -315,7 +317,7 @@ class Threshold_assess:
             "End": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Assessment type": self.stim_type,
             "Location": "wrist" if config.current_assess == 0 else "index",
-            "SR": "on" if config.current_assess > 3 and config.current_assess < 7 else "off",
+            "SR": "on" if self.sr_on else "off",
             "Ascending threshold": self.asc_threshold,
             "Ascending stim level history": self.asc_vib_lvl_history,
             "Ascending level changing points": self.asc_changing_points,
@@ -332,7 +334,7 @@ class Threshold_assess:
             "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Assessment type": self.stim_type,
             "Location": "wrist" if config.current_assess == 0 else "index",
-            "SR": "on" if config.current_assess > 3 and config.current_assess < 7 else "off",
+            "SR": "on" if self.sr_on else "off",
             "Final threshold": final_threshold
         }
         json_object = json.dumps(data, indent=4)
@@ -340,7 +342,7 @@ class Threshold_assess:
             file.write(json_object + '\n')
         if config.current_assess == 0:
             config.wrist_threshold = final_threshold
-        if config.current_assess == 9:
+        if config.current_assess >=3:
             self.screen.fill('black')
             UI.draw_text('Fin de l\'expérience', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
             pygame.display.update()

@@ -33,6 +33,7 @@ for i in range(3):
         elif stim == 'click':
             config.stim_order_params.append(['click', config.index_max_click_lvl, config.max_nb_trials, config.max_chg_points, config.index_click_desc_start_step, config.index_staircase_coeff])
 
+print(f'\nParameters for the assessments have been generated: {config.stim_order_params}')
 # ask for participant dominant hand
 config.dominant_hand = input('\nDominant hand (L/R): ')
 
