@@ -344,6 +344,13 @@ class Threshold_assess:
             self.screen.fill('black')
             UI.draw_text('Fin de l\'expérience', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
             pygame.display.update()
+            # stay on the screen indefinitely
+            running = True
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
         else:
             config.current_assess += 1
             app = Threshold_assess(*config.stim_order_params[config.current_assess])
