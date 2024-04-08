@@ -181,7 +181,7 @@ void loop()
     if((int)incomingByte == '4')
     {
       // Serial.print("Acceleration:");
-      Serial.print(readAcceleration(readAllAxesG()), 4);
+      Serial.print(readAllAxesRawSamples().z, 4);
     }
   }
 
@@ -193,8 +193,15 @@ void loop()
     }
     else
     {
-      printAllAxes(readAllAxesG());
+      // printAllAxes(readAllAxesG());
+      Serial.print(readAcceleration(readAllAxesRaw()), 4);
+      // add a min and max value for the plot
+      Serial.print(",");
+      Serial.print(900);
+      Serial.print(",");
+      Serial.println(950);
+
     }
-    delay(.1);
+    delay(20);
   }
 }

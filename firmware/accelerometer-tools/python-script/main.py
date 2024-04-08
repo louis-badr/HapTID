@@ -104,13 +104,14 @@ def plot_volume_response(freq, vol_min, vol_max, step_size):
     plt.show()
 
 def plot_n_times(freq, vol, n):
-    accel_values = []
+    off_accel_values = []
+    on_accel_values = []
     str_mcu = str(freq) + str(round(vol * 1000))
     for i in range(n):
         # measure acceleration
         ser_accelerometer.write(b'4')
         # read result from accelerometer at rest as float
-        accel_values.append(ser_accelerometer.readline().decode())
+        off_accel_values.append(ser_accelerometer.readline().decode())
         time.sleep(3)
         # start vibration
         ser_haptid.write(str_mcu.encode())
@@ -120,7 +121,7 @@ def plot_n_times(freq, vol, n):
         # measure acceleration
         ser_accelerometer.write(b'4')
         # read result from accelerometer as float
-        accel_values.append(ser_accelerometer.readline().decode())
+        on_accel_values.append(ser_accelerometer.readline().decode())
         time.sleep(3)
         # stop vibration
         ser_haptid.write(b'0')
@@ -128,11 +129,13 @@ def plot_n_times(freq, vol, n):
         # wait
         time.sleep(3)
 
-    print(accel_values)
-    accel_values = [float(x) for x in accel_values]
+    off_accel_values = [float(x)/1023*6-3 for x in off_accel_values]
+    on_accel_values = [float(x)/1023*6-3 for x in on_accel_values]
     # plot acceleration
     plt.title(f'Frequency: {freq} Hz, Volume: {vol} %')
-    plt.scatter(range(1, len(accel_values)+1), accel_values)
+    plt.scatter(range(1, len(off_accel_values)+1), off_accel_values, label='Off', color='red')
+    plt.scatter(range(1, len(on_accel_values)+1), on_accel_values, label='On', color='green')
+
     plt.xlabel('Trials')
     plt.ylabel('Acceleration (g)')
     plt.show()
