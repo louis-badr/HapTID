@@ -37,12 +37,12 @@ print(f'\nParameters for the assessments have been generated: {config.stim_order
 # ask for participant dominant hand
 config.dominant_hand = input('\nDominant hand (L/R): ')
 
-config.current_assess = input(f'\nIf you want to skip assessments, type the number of the assessment you want to start from (2-10): ')
-if config.current_assess == '':
+config.current_assess = input(f'\nIf you want to skip assessments, type the number of the assessment you want to start from (2-{len(config.stim_order_params)}): ')
+if config.current_assess == '' or config.current_assess == '0':
     config.current_assess = 0
 else:
     config.current_assess = int(config.current_assess)
-if config.current_assess >= 1 and config.current_assess <= 10:
+if config.current_assess >= 1:
     config.current_assess = int(config.current_assess) - 1
     config.wrist_threshold = input(f'\nWrist threshold for participant {config.id}: ')
     config.wrist_threshold = float(config.wrist_threshold)

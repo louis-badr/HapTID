@@ -47,7 +47,7 @@ class Threshold_assess:
         self.asc_threshold = None
         self.noise_lvl = 0
         self.sr_on = False
-        if config.current_assess == 2:
+        if config.current_assess > 3 and config.current_assess < 7:
             self.sr_on = True
             self.noise_lvl = round(config.wrist_threshold * config.sr_coeff * 1000)
             print(f'Noise_lvl: {round(config.wrist_threshold * config.sr_coeff, 3)}%')
@@ -84,7 +84,7 @@ class Threshold_assess:
                 if self.stim_type == 'noise':
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                 elif self.stim_type == '80':
                     if config.dominant_hand == "R":
                         val_to_send += 200000
@@ -92,7 +92,7 @@ class Threshold_assess:
                         val_to_send += 100000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                 elif self.stim_type == '250':
                     if config.dominant_hand == "R":
                         val_to_send += 400000
@@ -100,7 +100,7 @@ class Threshold_assess:
                         val_to_send += 300000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                 elif self.stim_type == 'click':
                     if config.dominant_hand == "R":
                         val_to_send  += 400000
@@ -113,7 +113,7 @@ class Threshold_assess:
                     pygame.time.wait(random.randint(2000, 3000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                     
             self.desc_counter += 1
             #! stop all vibrations
@@ -214,7 +214,7 @@ class Threshold_assess:
                 if self.stim_type == 'noise':
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                 elif self.stim_type == '80':
                     if config.dominant_hand == "R":
                         val_to_send += 200000
@@ -222,7 +222,7 @@ class Threshold_assess:
                         val_to_send += 100000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                 elif self.stim_type == '250':
                     if config.dominant_hand == "R":
                         val_to_send += 400000
@@ -230,7 +230,7 @@ class Threshold_assess:
                         val_to_send += 300000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
                 elif self.stim_type == 'click':
                     if config.dominant_hand == "R":
                         val_to_send  += 400000
@@ -243,7 +243,7 @@ class Threshold_assess:
                     pygame.time.wait(random.randint(2000, 3000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 4000))
+                    pygame.time.wait(random.randint(2000, 3000))
             self.asc_counter += 1
             #! stop all vibrations
             config.ser_haptid.write('0'.encode())
@@ -342,7 +342,7 @@ class Threshold_assess:
             file.write(json_object + '\n')
         if config.current_assess == 0:
             config.wrist_threshold = final_threshold
-        if config.current_assess >=3:
+        if config.current_assess >=9:
             self.screen.fill('black')
             UI.draw_text('Fin de l\'expérience', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
             pygame.display.update()
