@@ -22,9 +22,14 @@ wrist_max_vib_lvl = 25   # starting value in %
 index_max_vib_lvl = 15   # starting value in %  adjust after
 index_max_click_lvl = 30
 max_nb_trials = 35    # max number of trials
+
 max_chg_points = 7
-wrist_staircase_coeff = 0.75
-index_staircase_coeff = 0.75
+
+desc_max_chg_points = 7
+asc_max_chg_points = 6
+
+wrist_staircase_coeff = 0.9
+index_staircase_coeff = 0.9
 wrist_desc_start_step = wrist_max_vib_lvl / 4   # starting descending step in %
 index_vib_desc_start_step = index_max_vib_lvl / 4
 index_click_desc_start_step = index_max_click_lvl / 4

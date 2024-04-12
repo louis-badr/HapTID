@@ -198,7 +198,7 @@ class Threshold_assess:
             file.write(json_object + '\n')
         print('Starting the ascending assessment...')
         start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.asc_step = self.desc_threshold / 4
+        self.asc_step = self.desc_threshold * 4 / 9 # starting ascending step in % - 4/9 of the descending threshold to try to overshoot it a bit
         # ends when the maximum number of trials has been reached or when the value has stabilized
         while len(self.asc_vib_lvl_history) < self.max_nb_trials and len(self.asc_changing_points) < self.max_chg_points:
             # display a black screen
