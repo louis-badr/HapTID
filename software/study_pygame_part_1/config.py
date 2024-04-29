@@ -1,6 +1,8 @@
 # Participant info
 id = None
 dominant_hand = None    # "L" or "R"
+age = None
+gender = None
 wrist_threshold = -1
 
 # Display
@@ -12,24 +14,24 @@ baud_rate = 115200
 ser_haptid = None
 
 # Stochastic resonance
-sr_coeff = 0.6  # factor to be applied to the threshold value to get the white noise level
+sr_coeff = 0.8  # factor to be applied to the threshold value to get the white noise level
 
 stim_order = None
 
 current_assess = 0
 
-wrist_max_vib_lvl = 25   # starting value in %
-index_max_vib_lvl = 15   # starting value in %  adjust after
-index_max_click_lvl = 30
+wrist_max_vib_lvl = 24   # starting value in %
+index_max_vib_lvl = 12   # starting value in %  adjust after
+index_max_click_lvl = 24
 max_nb_trials = 35    # max number of trials
 
 max_chg_points = 7
 
-desc_max_chg_points = 7
+desc_max_chg_points = 8
 asc_max_chg_points = 6
 
-wrist_staircase_coeff = 0.9
-index_staircase_coeff = 0.9
+wrist_staircase_coeff = 0.75
+index_staircase_coeff = 0.75
 wrist_desc_start_step = wrist_max_vib_lvl / 4   # starting descending step in %
 index_vib_desc_start_step = index_max_vib_lvl / 4
 index_click_desc_start_step = index_max_click_lvl / 4

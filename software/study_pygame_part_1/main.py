@@ -36,6 +36,10 @@ for i in range(3):
 print(f'\nParameters for the assessments have been generated: {config.stim_order_params}')
 # ask for participant dominant hand
 config.dominant_hand = input('\nDominant hand (L/R): ')
+# ask for participant age	
+config.age = input('\nAge: ')
+# ask for participant gender
+config.gender = input('\nGender (M/F/O): ')
 
 config.current_assess = input(f'\nIf you want to skip assessments, type the number of the assessment you want to start from (2-{len(config.stim_order_params)}): ')
 if config.current_assess == '' or config.current_assess == '0':

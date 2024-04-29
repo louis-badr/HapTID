@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import config
-import json
+import csv
 import numpy
 import os
 import pygame
@@ -21,7 +21,7 @@ class Threshold_assess:
         self.screen_h = pygame.display.Info().current_h
         self.font = pygame.font.SysFont(None, 48)
         self.clock = pygame.time.Clock()
-        self.file_path = f'./participants_data/P{config.id}/P{config.id}-data.jsonl'
+        self.file_path = f'./participants_data/P{config.id}/P{config.id}-data.csv'
 
         # initializations
         self.desc_vib_lvl_history = []
@@ -47,7 +47,8 @@ class Threshold_assess:
         self.asc_threshold = None
         self.noise_lvl = 0
         self.sr_on = False
-        if config.current_assess > 3 and config.current_assess < 7:
+        # if config.current_assess > 3 and config.current_assess < 7:
+        if config.current_assess == 2:
             self.sr_on = True
             self.noise_lvl = round(config.wrist_threshold * config.sr_coeff * 1000)
             print(f'Noise_lvl: {round(config.wrist_threshold * config.sr_coeff, 3)}%')
@@ -56,6 +57,7 @@ class Threshold_assess:
 
     def run(self):
         # waiting screen
+        config.ser_haptid.write('0'.encode())
         self.screen.fill('black')
         UI.draw_text('Cliquez n\'importe où pour commencer', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
         UI.draw_text(f'{config.current_assess+1}/{len(config.stim_order_params)}', self.font, UI.color_text, self.screen, self.screen_w-100, 50)
@@ -64,6 +66,8 @@ class Threshold_assess:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    config.ser_haptid.write('0'.encode())
+                    config.ser_haptid.close()
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -84,7 +88,7 @@ class Threshold_assess:
                 if self.stim_type == 'noise':
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                 elif self.stim_type == '80':
                     if config.dominant_hand == "R":
                         val_to_send += 200000
@@ -92,7 +96,7 @@ class Threshold_assess:
                         val_to_send += 100000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                 elif self.stim_type == '250':
                     if config.dominant_hand == "R":
                         val_to_send += 400000
@@ -100,7 +104,7 @@ class Threshold_assess:
                         val_to_send += 300000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                 elif self.stim_type == 'click':
                     if config.dominant_hand == "R":
                         val_to_send  += 400000
@@ -110,10 +114,10 @@ class Threshold_assess:
                     # two clicks
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                     
             self.desc_counter += 1
             #! stop all vibrations
@@ -129,8 +133,8 @@ class Threshold_assess:
             # display the buttons
             self.screen.fill('black')
             UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 0 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
-            no_button = UI.draw_button('Non', self.font, UI.color_text, self.screen, self.screen_w/2-100, self.screen_h/2+100)
-            yes_button = UI.draw_button('Oui', self.font, UI.color_text, self.screen, self.screen_w/2+100, self.screen_h/2+100)
+            no_button = UI.draw_button('Non', self.font, UI.color_text, UI.color_red, self.screen, self.screen_w/2-100, self.screen_h/2+100)
+            yes_button = UI.draw_button('Oui', self.font, UI.color_text, UI.color_green, self.screen, self.screen_w/2+100, self.screen_h/2+100)
             pygame.display.update()
             print(self.desc_answers_history)
             # wait for the participant to answer
@@ -138,6 +142,8 @@ class Threshold_assess:
             while running:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        config.ser_haptid.write('0'.encode())
+                        config.ser_haptid.close()
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -178,24 +184,14 @@ class Threshold_assess:
                                 self.desc_vib_lvl = self.max_vib_lvl
                             running = False
         print('Descending assessment done.')
-        # save the results
         self.desc_threshold = round(numpy.mean(self.desc_changing_points[-4:]), 3)
-        data = {
-            "Participant": config.id,
-            "Dominant hand": config.dominant_hand,
-            "Start": self.start_date,
-            "End": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Assessment type": self.stim_type,
-            "Location": "wrist" if config.current_assess == 0 else "index",
-            "SR": "on" if self.sr_on else "off",
-            "Descending threshold": self.desc_threshold,
-            "Descending stim level history": self.desc_vib_lvl_history,
-            "Descending level changing points": self.desc_changing_points,
-            "Descending participant answers history": self.desc_answers_history
-        }
-        json_object = json.dumps(data, indent=4)
-        with open(self.file_path, 'a') as file:
-            file.write(json_object + '\n')
+        # save the results in a csv file
+        # Participant #; Age; Gender; Dominant hand; Assess #; SR (n% of PT); Start; End; Stim type; Calculated PT; Vibration history
+        data = [config.id, config.age, config.gender, config.dominant_hand, config.current_assess + 1, config.sr_coeff if self.sr_on else 0, self.start_date, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.stim_type, self.desc_threshold]
+        data += self.desc_vib_lvl_history
+        with open(self.file_path, 'a', newline='') as file:
+            writer = csv.writer(file, delimiter=';')
+            writer.writerow(data)
         print('Starting the ascending assessment...')
         start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.asc_step = self.desc_threshold * 4 / 9 # starting ascending step in % - 4/9 of the descending threshold to try to overshoot it a bit
@@ -214,7 +210,7 @@ class Threshold_assess:
                 if self.stim_type == 'noise':
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                 elif self.stim_type == '80':
                     if config.dominant_hand == "R":
                         val_to_send += 200000
@@ -222,7 +218,7 @@ class Threshold_assess:
                         val_to_send += 100000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                 elif self.stim_type == '250':
                     if config.dominant_hand == "R":
                         val_to_send += 400000
@@ -230,7 +226,7 @@ class Threshold_assess:
                         val_to_send += 300000
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                 elif self.stim_type == 'click':
                     if config.dominant_hand == "R":
                         val_to_send  += 400000
@@ -240,10 +236,10 @@ class Threshold_assess:
                     # two clicks
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
                     config.ser_haptid.write(f'{val_to_send}'.encode())
                     print(f'Sending {val_to_send} to MCU')
-                    pygame.time.wait(random.randint(2000, 3000))
+                    pygame.time.wait(random.randint(1000, 2000))
             self.asc_counter += 1
             #! stop all vibrations
             config.ser_haptid.write('0'.encode())
@@ -258,8 +254,8 @@ class Threshold_assess:
             # display the buttons
             self.screen.fill('black')
             UI.draw_text('Avez-vous senti une stimulation à votre poignet ?' if config.current_assess == 0 else 'Avez-vous senti une stimulation à votre index ?', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
-            no_button = UI.draw_button('Non', self.font, UI.color_text, self.screen, self.screen_w/2-100, self.screen_h/2+100)
-            yes_button = UI.draw_button('Oui', self.font, UI.color_text, self.screen, self.screen_w/2+100, self.screen_h/2+100)
+            no_button = UI.draw_button('Non', self.font, UI.color_text, UI.color_red, self.screen, self.screen_w/2-100, self.screen_h/2+100)
+            yes_button = UI.draw_button('Oui', self.font, UI.color_text, UI.color_green, self.screen, self.screen_w/2+100, self.screen_h/2+100)
             pygame.display.update()
             print(self.asc_answers_history)
             # wait for the participant to answer
@@ -267,6 +263,8 @@ class Threshold_assess:
             while running:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        config.ser_haptid.write('0'.encode())
+                        config.ser_haptid.close()
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -308,40 +306,16 @@ class Threshold_assess:
                                 self.asc_vib_lvl = self.max_vib_lvl
                             running = False
         print('Ascending assessment done.')
+        self.asc_threshold = round(numpy.mean(self.asc_changing_points[-3:]), 3)
         # save the results
-        self.asc_threshold = round(numpy.mean(self.asc_changing_points[-4:]), 3)
-        data = {
-            "Participant": config.id,
-            "Dominant hand": config.dominant_hand,
-            "Start": start_time,
-            "End": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Assessment type": self.stim_type,
-            "Location": "wrist" if config.current_assess == 0 else "index",
-            "SR": "on" if self.sr_on else "off",
-            "Ascending threshold": self.asc_threshold,
-            "Ascending stim level history": self.asc_vib_lvl_history,
-            "Ascending level changing points": self.asc_changing_points,
-            "Ascending participant answers history": self.asc_answers_history
-        }
-        json_object = json.dumps(data, indent=4)
-        with open(self.file_path, 'a') as file:
-            file.write(json_object + '\n')
-        # save the final threshold
-        final_threshold = round((self.desc_threshold + self.asc_threshold) / 2, 3)
-        data = {
-            "Participant": config.id,
-            "Dominant hand": config.dominant_hand,
-            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Assessment type": self.stim_type,
-            "Location": "wrist" if config.current_assess == 0 else "index",
-            "SR": "on" if self.sr_on else "off",
-            "Final threshold": final_threshold
-        }
-        json_object = json.dumps(data, indent=4)
-        with open(self.file_path, 'a') as file:
-            file.write(json_object + '\n')
+        # Participant #; Age; Gender; Dominant hand; Assess #; SR (n% of PT); Start; End; Stim type; Calculated PT; Vibration history
+        data = [config.id, config.age, config.gender, config.dominant_hand, config.current_assess + 1, config.sr_coeff if self.sr_on else 0, self.start_date, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.stim_type, self.asc_threshold]
+        data += self.asc_vib_lvl_history
+        with open(self.file_path, 'a', newline='') as file:
+            writer = csv.writer(file, delimiter=';')
+            writer.writerow(data)
         if config.current_assess == 0:
-            config.wrist_threshold = final_threshold
+            config.wrist_threshold = round((self.desc_threshold + self.asc_threshold) / 2, 3)
         if config.current_assess >=9:
             self.screen.fill('black')
             UI.draw_text('Fin de l\'expérience', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
@@ -351,6 +325,8 @@ class Threshold_assess:
             while running:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        config.ser_haptid.write('0'.encode())
+                        config.ser_haptid.close()
                         pygame.quit()
                         sys.exit()
         else:
