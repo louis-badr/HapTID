@@ -15,7 +15,6 @@ class Threshold_assess:
     def __init__(self, stim_type, max_vib_lvl, max_nb_trials, max_chg_points, desc_start_step, staircase_coeff):
         # pygame things
         pygame.display.set_caption("Threshold assessment - HapTID")
-        self.start_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.screen = pygame.display.get_surface()
         self.screen_w = pygame.display.Info().current_w
         self.screen_h = pygame.display.Info().current_h
@@ -47,17 +46,19 @@ class Threshold_assess:
         self.asc_threshold = None
         self.noise_lvl = 0
         self.sr_on = False
-        # if config.current_assess > 3 and config.current_assess < 7:
-        if config.current_assess == 2:
+
+        config.ser_haptid.write('0'.encode())
+        if config.current_assess > 3 and config.current_assess < 7:
+        #if config.current_assess == 2:
             self.sr_on = True
             self.noise_lvl = round(config.wrist_threshold * config.sr_coeff * 1000)
             print(f'Noise_lvl: {round(config.wrist_threshold * config.sr_coeff, 3)}%')
+            pygame.time.wait(50)
             config.ser_haptid.write(f'{self.noise_lvl}'.encode())
             print(f'Sending {self.noise_lvl} to MCU')
 
     def run(self):
         # waiting screen
-        config.ser_haptid.write('0'.encode())
         self.screen.fill('black')
         UI.draw_text('Cliquez n\'importe où pour commencer', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
         UI.draw_text(f'{config.current_assess+1}/{len(config.stim_order_params)}', self.font, UI.color_text, self.screen, self.screen_w-100, 50)
@@ -73,6 +74,7 @@ class Threshold_assess:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     running = False
         print('Starting the descending assessment...')
+        start_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # ends when the maximum number of trials has been reached or when the value has stabilized
         while len(self.desc_vib_lvl_history) < self.max_nb_trials and len(self.desc_changing_points) < self.max_chg_points:
             # display a black screen
@@ -163,7 +165,7 @@ class Threshold_assess:
                                 self.desc_vib_lvl -= self.desc_step
                                 self.desc_vib_lvl = round(self.desc_vib_lvl, 3)
                             if self.desc_vib_lvl < 0:
-                                self.desc_vib_lvl = 0
+                                self.desc_vib_lvl = 0.01
                             running = False
                         if no_button.collidepoint(event.pos):
                             if len(self.desc_answers_history) > 0 and self.desc_answers_history[-1] == 'n':
@@ -184,17 +186,17 @@ class Threshold_assess:
                                 self.desc_vib_lvl = self.max_vib_lvl
                             running = False
         print('Descending assessment done.')
-        self.desc_threshold = round(numpy.mean(self.desc_changing_points[-4:]), 3)
+        self.desc_threshold = round(numpy.mean(self.desc_changing_points[-3:]), 3)
         # save the results in a csv file
-        # Participant #; Age; Gender; Dominant hand; Assess #; SR (n% of PT); Start; End; Stim type; Calculated PT; Vibration history
-        data = [config.id, config.age, config.gender, config.dominant_hand, config.current_assess + 1, config.sr_coeff if self.sr_on else 0, self.start_date, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.stim_type, self.desc_threshold]
+        # Participant #; Age; Gender (M/F/O); Dominant hand (L/R); Assess #; Assess type (Desc/Asc); Noise PT coeff; Start; End; Stim type; Calculated PT; Vibration history
+        data = [config.id, config.age, config.gender, config.dominant_hand, config.current_assess + 1, 'Desc', config.sr_coeff if self.sr_on else 0, start_date, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.stim_type, self.desc_threshold]
         data += self.desc_vib_lvl_history
         with open(self.file_path, 'a', newline='') as file:
             writer = csv.writer(file, delimiter=';')
             writer.writerow(data)
         print('Starting the ascending assessment...')
-        start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.asc_step = self.desc_threshold * 4 / 9 # starting ascending step in % - 4/9 of the descending threshold to try to overshoot it a bit
+        start_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.asc_step = self.desc_threshold * 0.4 # starting ascending step in %
         # ends when the maximum number of trials has been reached or when the value has stabilized
         while len(self.asc_vib_lvl_history) < self.max_nb_trials and len(self.asc_changing_points) < self.max_chg_points:
             # display a black screen
@@ -285,7 +287,7 @@ class Threshold_assess:
                                     self.asc_vib_lvl -= self.asc_step
                                     self.asc_vib_lvl = round(self.asc_vib_lvl, 3)
                             if self.asc_vib_lvl < 0:
-                                self.asc_vib_lvl = 0
+                                self.asc_vib_lvl = 0.01
                             running = False
                         if no_button.collidepoint(event.pos):
                             if len(self.asc_answers_history) == 0 or self.asc_answers_history[-1] == 'n':
@@ -308,8 +310,8 @@ class Threshold_assess:
         print('Ascending assessment done.')
         self.asc_threshold = round(numpy.mean(self.asc_changing_points[-3:]), 3)
         # save the results
-        # Participant #; Age; Gender; Dominant hand; Assess #; SR (n% of PT); Start; End; Stim type; Calculated PT; Vibration history
-        data = [config.id, config.age, config.gender, config.dominant_hand, config.current_assess + 1, config.sr_coeff if self.sr_on else 0, self.start_date, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.stim_type, self.asc_threshold]
+        # Participant #; Age; Gender (M/F/O); Dominant hand (L/R); Assess #; Assess type (Desc/Asc); Noise PT coeff; Start; End; Stim type; Calculated PT; Vibration history
+        data = [config.id, config.age, config.gender, config.dominant_hand, config.current_assess + 1, 'Asc',config.sr_coeff if self.sr_on else 0, start_date, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.stim_type, self.asc_threshold]
         data += self.asc_vib_lvl_history
         with open(self.file_path, 'a', newline='') as file:
             writer = csv.writer(file, delimiter=';')

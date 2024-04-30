@@ -1,5 +1,6 @@
 import config
 import csv
+import menu
 import os
 import pygame
 import serial.tools.list_ports
@@ -16,6 +17,10 @@ if not os.path.exists(f'./participants_data/P{config.id}'):
 
 # ask for participant dominant hand
 config.dominant_hand = input('\nDominant hand (L/R): ')
+# ask for participant age	
+config.age = input('\nAge: ')
+# ask for participant gender
+config.gender = input('\nGender (M/F/O): ')
 
 # list available serial ports
 ports = serial.tools.list_ports.comports()

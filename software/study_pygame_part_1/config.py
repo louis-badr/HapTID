@@ -28,7 +28,7 @@ max_nb_trials = 35    # max number of trials
 max_chg_points = 7
 
 desc_max_chg_points = 8
-asc_max_chg_points = 6
+asc_max_chg_points = 7
 
 wrist_staircase_coeff = 0.75
 index_staircase_coeff = 0.75
