@@ -13,12 +13,12 @@ The ESP32 listens to the serial port for a value:
 - between 400001 and 500000 to control the 250Hz tone level on output 5
 
 - between -1 and -100000 to control the click level on output 1
-- between -100001 and -200000 to control the click level on output 2
-- between -200001 and -300000 to control the click level on output 3
-- between -300001 and -400000 to control the click level on output 4
-- between -400001 and -500000 to control the click level on output 5
-- between -500001 and -600000 to control the click level on output 6
-- between -600001 and -700000 to control the click level for a click on all outputs at the same time
+- between -100001 and -199999 to control the click level on output 2
+- between -200001 and -299999 to control the click level on output 3
+- between -300001 and -399999 to control the click level on output 4
+- between -400001 and -499999 to control the click level on output 5
+- between -500001 and -599999 to control the click level on output 6
+- between -600001 and -699999 to control the click level for a click on all outputs at the same time
 
 - between -700001 and -799999 to play a sine click on output 1
 - between -800001 and -899999 to play a sine click on output 2

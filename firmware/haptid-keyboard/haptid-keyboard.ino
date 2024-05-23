@@ -1,4 +1,4 @@
-int framerate = 144;
+int framerate = 60;
 float delayFsr = 1000/framerate;
 
 int randomFinger;
@@ -39,7 +39,7 @@ void readInputCRT() {
   // on démarre le timer
   startTime = micros();
   // on lit en boucle chaque FSR
-  while(keepReading) {
+  while(keepReading && micros() - startTime < 3000000) {
     for (int i = 0; i <= 4; i++) {
       fsrReading = analogRead(i);
       //Serial.println(fsrReading);
