@@ -7,7 +7,7 @@ int pressedFinger;
 unsigned long startTime;
 unsigned long elapsedTime;
 
-int pressThreshold = 300; // FSR reading value over which it is counted as a press
+int pressThreshold = 250; // FSR reading value over which it is counted as a press
 int fsrReading;      // analog reading from the FSR resistor divider
 unsigned long fsrVoltage; // analog reading converted to voltage
 unsigned long fsrResistance; // voltage converted to resistance
@@ -47,14 +47,13 @@ void readInputCRT() {
         elapsedTime = micros() - startTime;
         pressedFinger = i;
         keepReading = false;
+        Serial.print(pressedFinger);
+        Serial.print(";");
+        Serial.println(elapsedTime);
         break;
       }
     }
   }
-  // on print le résultat
-  Serial.print(pressedFinger);
-  Serial.print(";");
-  Serial.println(elapsedTime/1000);
 }
 
 // Force Control

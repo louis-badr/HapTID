@@ -22,15 +22,18 @@ class CRT:
         self.circles_pos_x = [0.673, 0.582, 0.496, 0.412, 0.33]
         self.circles_pos_y = [0.498, 0.19, 0.151, 0.189, 0.34]
         hand_img = pygame.image.load('hand_drawing.png').convert_alpha()
+        hand_img_green = pygame.image.load('hand_drawing_green.png').convert_alpha()
         # we study the non-dominant hand, the image is of a left hand
         # we flip it as well as the circles if the participant is left-handed
         if config.dominant_hand == 'L':
             hand_img = pygame.transform.flip(hand_img, True, False)
+            hand_img_green = pygame.transform.flip(hand_img_green, True, False)
             self.circles_pos_x = [1-i for i in self.circles_pos_x]
         # scale the image to the screen size
         hand_img_w, hand_img_h = hand_img.get_rect().size
         ratio = hand_img_w/hand_img_h
         self.hand_img = pygame.transform.smoothscale(hand_img, (int(ratio*self.screen_h*0.8), int(self.screen_h*0.8)))
+        self.hand_img_green = pygame.transform.smoothscale(hand_img_green, (int(ratio*self.screen_h*0.8), int(self.screen_h*0.8)))
 
         self.tasks_list = tasks_list
         self.file_path = f'./participants_data/P{config.id}/P{config.id}-CRT.csv'
@@ -86,7 +89,7 @@ class CRT:
                             pygame.quit()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             running = False
-            else:
+            if self.tasks_list[i][0] != 'break':
                 # get the info for the task
                 task_no = self.tasks_list[i][2]
                 noise_coeff = float(self.tasks_list[i][3])
@@ -107,20 +110,22 @@ class CRT:
                     case other:
                         print(f'Error: unknown finger: {finger}')
                 # values to send to the MCU computed here to avoid delays
-                finger_volume = config.finger_vib_threshold * 1.5
-                if finger_volume > 99.999:
-                    finger_volume = 99.999
-                val_click_all = round(-(60000 + finger_volume * 1000))
+                finger_vib_volume = config.finger_vib_threshold * 16
+                finger_click_volume = config.finger_click_threshold * 16
+                if finger_vib_volume > 99.999:
+                    finger_vib_volume = 99.999
+                if finger_click_volume > 99.999:
+                    finger_click_volume = 99.999
+                val_click_all = round(-(600000 + finger_click_volume * 1000))
                 if config.dominant_hand == 'L':
-                    val_tactile_click = round(-((finger_no + 1) * 100000 + finger_volume * 1000))
-                    val_tactile_vibration = round(-((finger_no + 8) * 100000 + finger_volume * 1000))
+                    val_tactile_click = round(-((finger_no + 1) * 100000 + finger_click_volume * 1000))
+                    val_tactile_vibration = round(-((finger_no + 8) * 100000 + finger_vib_volume * 1000))
                 else:
-                    val_tactile_click = round(-((5 - finger_no) * 100000 + finger_volume * 1000))
-                    val_tactile_vibration = round(-((12 - finger_no) * 100000 + finger_volume * 1000))
+                    val_tactile_click = round(-((5 - finger_no) * 100000 + finger_click_volume * 1000))
+                    val_tactile_vibration = round(-((12 - finger_no) * 100000 + finger_vib_volume * 1000))
                 if noise_coeff != 0:
                     # start the noise
                     self.noise_lvl = round(config.wrist_threshold * noise_coeff * 1000)
-                    print(f'Noise_lvl: {round(config.wrist_threshold * config.sr_coeff, 3)}%')
                     config.ser_haptid.write(f'{self.noise_lvl}'.encode())
                     print(f'Sent {self.noise_lvl} to MCU')
                 # display the hand and the crosshair
@@ -185,13 +190,22 @@ class CRT:
                     if data:
                         print(f'Received {data} from MCU')
                         running = False
-                    if pygame.time.get_ticks() - start_time > config.max_reaction_time:
+                        self.screen.fill(UI.color_bg)
+                        self.screen.blit(self.hand_img_green, (self.screen_w/2-self.hand_img.get_rect().size[0]/2, self.screen_h/2-self.hand_img.get_rect().size[1]/2))
+                        pygame.draw.line(self.screen, 'white', (self.screen_w/2-20, self.screen_h/2), (self.screen_w/2+20, self.screen_h/2), 4)
+                        pygame.draw.line(self.screen, 'white', (self.screen_w/2, self.screen_h/2-20), (self.screen_w/2, self.screen_h/2+20), 4)
+                        pygame.display.flip()
+                        pygame.time.wait(500)
+                        self.screen.fill(UI.color_bg)
+                        pygame.display.flip()
+                        pygame.time.wait(1000)
+                    elif pygame.time.get_ticks() - start_time >= config.max_reaction_time:
                         print('Timeout')
                         data = None
                         running = False
-                self.screen.fill(UI.color_bg)
-                pygame.display.flip()
-                pygame.time.wait(500)
+                        self.screen.fill(UI.color_bg)
+                        pygame.display.flip()
+                        pygame.time.wait(3000)
                 config.ser_haptid.write('0'.encode()) # stop the noise
                 # save the data
                 if data is None:
@@ -219,5 +233,22 @@ class CRT:
                     # Participant #; Age; Gender (M/F/O); Dominant hand (L/R); Wrist PT; Exercise type; Date; Task #; Noise PT coeff; Finger to press; Warning signal type; Imperative signal type; Finger pressed; Reaction time
                     writer.writerow([config.id, config.age, config.gender, config.dominant_hand, config.wrist_threshold, 'CRT', datetime.now().strftime("%Y-%m-%d %H:%M:%S"), task_no, noise_coeff, finger, ws_type, is_type, finger_pressed, data[1]])
                     print(f'Task {task_no} saved')
-        # go back to the menu
-        menu.Menu().run()
+        if config.state == 'experiment' and task_no != '-1':
+            config.state = None
+            # end screen
+            self.screen.fill(UI.color_bg)
+            UI.draw_text('Fin de l\'expérience', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2)
+            UI.draw_text('Merci d\'appeler l\'expérimentateur avant de retirer le matériel', self.font, UI.color_text, self.screen, self.screen_w/2, self.screen_h/2 + 50)
+            pygame.display.update()
+            running = True
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        config.ser_haptid.write('0'.encode())
+                        config.ser_haptid.close()
+                        config.ser_keyboard.close()
+                        pygame.quit()
+        else:
+            config.state = 'experiment'
+            # back to the menu
+            menu.Menu().run()

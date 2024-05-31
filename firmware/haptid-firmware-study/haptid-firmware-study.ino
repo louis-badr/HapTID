@@ -151,6 +151,7 @@ void setup()
   timerAlarmEnable(timer);
   delay(2000);
   playStartSequence();
+  delay(1000);
 }
 
 void loop()

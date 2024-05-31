@@ -47,6 +47,13 @@ config.gender = input('\nGender (M/F/O): ')
 
 config.task_skip = input(f'\nIf you want to start from a specific task, enter the task number, otherwise press Enter: ')
 if config.task_skip != '' and config.task_skip != '0':
+    config.wrist_threshold = input(f'\nType the wrist threshold for participant {config.id}: ')
+    config.finger_vib_threshold = input(f'\nType the finger vibration threshold for participant {config.id}: ')
+    config.finger_click_threshold = input(f'\nType the finger click threshold for participant {config.id}: ')
+    config.wrist_threshold = float(config.wrist_threshold)
+    config.finger_vib_threshold = float(config.finger_vib_threshold)
+    config.finger_click_threshold = float(config.finger_click_threshold)
+    config.state = 'experiment'
     config.task_skip = int(config.task_skip)
     # remove all tasks with a task number lower than the one entered
     config.expe_tasks = [task for task in config.expe_tasks if task[0] == 'break' or int(task[2]) >= config.task_skip]
@@ -56,6 +63,7 @@ if config.task_skip != '' and config.task_skip != '0':
 
 # list available serial ports
 ports = serial.tools.list_ports.comports()
+print('\nAvailable COM ports:')
 for port in sorted(ports):
     print(port)
 config.com_port_haptid = 'COM' + input('\nEnter the HapTID device COM port n°: ')
@@ -76,6 +84,8 @@ pygame.init()
 #screen = pygame.display.set_mode((1280,720))
 # fullscreen
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+print('\nThe graphical interface has been opened in a new window.')
 
 if __name__ == '__main__':
     menu.Menu().run()
