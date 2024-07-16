@@ -1,82 +1,55 @@
-int framerate = 60;
-float delayFsr = 1000/framerate;
-
-int randomFinger;
-int pressedFinger;
-
+const int numFSRs = 5;
+const int fsrPins[numFSRs] = {A0, A1, A2, A3, A4}; // Arduino Mega analog pins
+const int pressThreshold = 400;                    // FSR value above which we consider the key pressed
+bool isRunning = false;
 unsigned long startTime;
 unsigned long elapsedTime;
 
-int pressThreshold = 250; // FSR reading value over which it is counted as a press
-int fsrReading;      // analog reading from the FSR resistor divider
-unsigned long fsrVoltage; // analog reading converted to voltage
-unsigned long fsrResistance; // voltage converted to resistance
-double force;
-
-char receivedChar;
-
-void setup(void) {
-  Serial.begin(115200);   // We'll send debugging information via the Serial monitor
-}
-
-void loop(void) {
-  if (Serial.available() > 0) {
-    receivedChar = Serial.read();
-    if (receivedChar == 'C') {
-      readInputCRT();
-    }
-    else if (receivedChar == 'F') {
-      startStreamFSR(10);
-    }
+void setup(void)
+{
+  Serial.begin(115200);
+  // Initialize FSR pins
+  for (int i = 0; i < numFSRs; i++)
+  {
+    pinMode(fsrPins[i], INPUT);
   }
 }
 
-// Choice Reaction Time (CRT)
-// fonction on attend qu'un FSR soit pressé - on retourne quel FSR a été pressé et le temps entre le début de la lecture et l'appui
-void readInputCRT() {
-  bool keepReading = true;
-  randomFinger = random(5);
-  // on démarre le timer
-  startTime = micros();
-  // on lit en boucle chaque FSR
-  while(keepReading && micros() - startTime < 3000000) {
-    for (int i = 0; i <= 4; i++) {
-      fsrReading = analogRead(i);
-      //Serial.println(fsrReading);
-      if (fsrReading >= pressThreshold) {
+void loop()
+{
+  if (Serial.available() > 0)
+  {
+    char receivedChar = Serial.read();
+    // Start the timer when we receive a 'C' character
+    if (receivedChar == 'C')
+    {
+      startTime = micros();
+      isRunning = true;
+    }
+  }
+  // If the timer is running
+  if (isRunning)
+  {
+    // Check if any FSR is pressed
+    for (int i = 0; i < numFSRs; i++)
+    {
+      int fsrValue = analogRead(fsrPins[i]);
+      if (fsrValue > pressThreshold)
+      {
+        // Stop the timer and print the key number and elapsed time
         elapsedTime = micros() - startTime;
-        pressedFinger = i;
-        keepReading = false;
-        Serial.print(pressedFinger);
+        Serial.print(i);
         Serial.print(";");
         Serial.println(elapsedTime);
+        // Stop reading
+        isRunning = false;
         break;
       }
     }
-  }
-}
-
-// Force Control
-// fonction pour streamer la valeur de l'index convertie en force pendant X secondes
-void startStreamFSR(float sec) {
-  // start the timer
-  startTime = micros();
-  // for the next X seconds
-  while(micros() - startTime <= sec * 1000000) {
-    // read the analog pin
-    fsrReading = analogRead(0);
-    // analog voltage reading ranges from 0 to 1023 which is mapped from 0 to 5V (= 5000mV)
-    fsrVoltage = map(fsrReading, 0, 1023, 0, 5000);
-    if (fsrVoltage != 0) {
-      fsrResistance = 5000 - fsrVoltage;
-      fsrResistance *= 10000; // 10k resistor
-      fsrResistance /= fsrVoltage;
-      force = 6570*pow(fsrResistance,-0.738);
+    // If 4 seconds have passed, stop reading
+    if (micros() - startTime > 4000000)
+    {
+      isRunning = false;
     }
-    else {
-      force = 0;
-    }
-    Serial.println(force);
-    delay(delayFsr);
   }
 }
