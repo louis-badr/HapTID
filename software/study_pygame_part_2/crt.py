@@ -180,7 +180,7 @@ class CRT:
                     case other:
                         print(f'Error: unknown imperative signal type: {is_type}')
                 # set the keyboard in listening mode
-                config.ser_keyboard.write(b'C')
+                config.ser_keyboard.write(b'R')
                 # start a timer
                 start_time = pygame.time.get_ticks()
                 # wait for the participant's response
@@ -207,11 +207,14 @@ class CRT:
                         pygame.display.flip()
                         pygame.time.wait(3000)
                 config.ser_haptid.write('0'.encode()) # stop the noise
+                config.ser_keyboard.write(b'S') # stop listening
                 # save the data
                 if data is None:
                     finger_pressed = 'timeout'
                     data = ['timeout', 'timeout']
-                else:
+                elif data.startswith('[') and data.endswith(']'):
+                    print(f'Received {data} from MCU')
+                    data = data[1:-1]
                     data = data.split(';')
                     if config.dominant_hand == 'R':
                         data[0] = str(4 - int(data[0]))
@@ -228,6 +231,10 @@ class CRT:
                             finger_pressed = 'little'
                         case other:
                             print(f'Error: unknown finger pressed: {data[0]}')
+                else:
+                    print(f'Error: unknown data received: {data}')
+                    finger_pressed = 'error'
+                    data = ['error', 'error']
                 with open(self.file_path, mode='a', newline='') as file:
                     writer = csv.writer(file, delimiter=';')
                     # Participant #; Age; Gender (M/F/O); Dominant hand (L/R); Wrist PT; Exercise type; Date; Task #; Noise PT coeff; Finger to press; Warning signal type; Imperative signal type; Finger pressed; Reaction time
