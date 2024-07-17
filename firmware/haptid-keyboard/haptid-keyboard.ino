@@ -46,8 +46,8 @@ void loop()
         break;
       }
     }
-    // If 4 seconds have passed, stop reading
-    if (micros() - startTime > 4000000)
+    // If 3 seconds have passed, stop reading
+    if (micros() - startTime > 3000000)
     {
       isRunning = false;
     }
