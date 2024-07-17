@@ -33,8 +33,6 @@ void setup(void)
     pinMode(fsrPins[i], INPUT);
   }
   delay(3000);
-  // Takes 5 * 100 * 10 ms = 5 seconds
-  calcBaselines(100, 10);
 }
 
 void loop()
